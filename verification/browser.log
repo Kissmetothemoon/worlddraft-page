@@ -1,0 +1,26 @@
+PASS initial load: four-lane interactive exhibit and recorded block inspector ready
+PASS default milestone: round 160, base 481/512, LexDraft 512/512
+PASS optional measurement chart retains all four systems in fixed order
+PASS playback controls precede lanes; normalized-time tick 100 is positioned at 100/110
+PASS four-lane playback: synchronized start, pause, reset and finish checkpoints
+PASS all 54 race settings: 216 progress/finish values match data; English does not force LexDraft to win
+PASS real block interaction: draft/rescore/verify phases, clickable proposals, all 8 recorded prefixes
+PASS reduced-motion mode: race and block are manual, with no autoplay
+PASS replay endpoints: tied round 15 is 7.4% progress; final rounds 170 vs 160
+PASS replay, pause and next-round controls
+PASS reduced motion: no timed replay; manual stepping works
+PASS 216 plotted values: 4 arms × 3 loads × 18 conditions; 108 matched prior gains checked
+PASS progressively disclosed engine and two-target loop tables
+PASS citation copy reports copied or selected fallback
+PASS responsive width 1440: no horizontal page overflow
+PASS responsive width 1024: no horizontal page overflow
+PASS responsive width 768: no horizontal page overflow
+PASS responsive width 390: no horizontal page overflow
+PASS responsive width 320: no horizontal page overflow
+PASS mobile pointer/keyboard: shared time slider, finish jump, block phases and token inspection
+PASS real pointer and keyboard input: replay, pause, next round and slider
+PASS expanded 320/390px disclosures: no page overflow; table keyboard scrolling works
+PASS manual dark/light theme switch and desktop/mobile captures
+PASS all internal anchors and local downloads resolve
+PASS browser console errors: 0; transport failures: 0; HTTP errors: 0; paper images: 0
+PASS offline file:// load: data, styles and scripts available without server

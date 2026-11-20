@@ -1,0 +1,9 @@
+{
+  "table_main.json": true,
+  "pieces.json": true,
+  "quality.json": true,
+  "speed.json": true,
+  "seqs.json": true,
+  "trace_te.json": true,
+  "survey_summary.json": true
+}

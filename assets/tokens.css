@@ -1,0 +1,45 @@
+/* Existing LexDraft identity, consolidated into semantic tokens. */
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #ffffff;
+  --muted: #efeee9;
+  --foreground: #20211f;
+  --secondary: #575954;
+  --subtle: #676a63;
+  --border: #dcded6;
+  --baseline: #92958b;
+  --trained-fill: #565e62;
+  --brand: #c64b20;
+  --brand-fill: #d95424;
+  --prior-fill: #eab08e;
+  --brand-soft: #fbefe6;
+  --on-primary: #ffffff;
+  --positive: #327051;
+  --rejected: #963940;
+  --rejected-bg: #f6e9e9;
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", monospace;
+  --tracking-title: -.035em;
+  --tracking-label: .08em;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #141613;
+  --surface: #1d201b;
+  --muted: #292d26;
+  --foreground: #efefe9;
+  --secondary: #bcbfb5;
+  --subtle: #a6aa9f;
+  --border: #3c4136;
+  --baseline: #898f80;
+  --trained-fill: #bcc2c6;
+  --brand: #ff9b6f;
+  --brand-fill: #ed8556;
+  --prior-fill: #966344;
+  --brand-soft: #30241b;
+  --on-primary: #171a14;
+  --positive: #8dcca5;
+  --rejected: #ed9d9d;
+  --rejected-bg: #392328;
+}
