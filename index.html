@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="LexDraft uses a lightweight within-word prior to improve multilingual parallel drafting. Measured throughput gains, unchanged target verification, and real decoding traces.">
-  <title>LexDraft | Explore four systems, then inspect a real block.</title>
-  <link rel="icon" href="data:,">
+  <meta name="description" content="WorldDraft uses a lightweight within-word prior to improve multilingual parallel drafting. Measured throughput gains, unchanged target verification, and real decoding traces.">
+  <title>WorldDraft | Explore four systems, then inspect a real block.</title>
+  <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
   <link rel="stylesheet" href="assets/tokens.css">
   <link rel="stylesheet" href="assets/style.css">
   <script src="assets/data.js" defer></script>
@@ -18,7 +18,7 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="topbar">
   <div class="wrap nav-row">
-    <a class="brand" href="#main" aria-label="LexDraft home">Lex<span>Draft</span><span class="brand-dot" aria-hidden="true"></span></a>
+    <a class="brand" href="#main" aria-label="WorldDraft home"><span class="brand-lockup" aria-hidden="true"></span></a>
     <nav aria-label="Main navigation">
       <a href="#demo">See it work</a>
       <a href="#results">Results</a>
@@ -29,8 +29,8 @@
 </header>
 <main id="main">
   <section class="wrap interactive-intro" aria-labelledby="hero-title">
-    <div><p class="eyebrow">LexDraft · interactive comparison</p><h1 id="hero-title">Same work.<br><span>Four ways to finish.</span></h1></div>
-    <div><p class="hero-description">See what LexDraft changes, before and after multilingual training. Start all four systems together. Then look inside an actual draft block.</p><a class="text-link" href="#block-demo">Why does it work? ↓</a></div>
+    <div><p class="eyebrow">WorldDraft · interactive comparison</p><h1 id="hero-title">Same work.<br><span>Four ways to finish.</span></h1></div>
+    <div><p class="hero-description">See what WorldDraft changes, before and after multilingual training. Start all four systems together. Then look inside an actual draft block.</p><a class="text-link" href="#block-demo">Why does it work? ↓</a></div>
   </section>
 
   <section class="wrap interactive-main" id="demo" aria-labelledby="race-title">
@@ -51,20 +51,20 @@
     <div class="checkpoints" aria-label="Jump to a finish moment">
       <span>Jump to:</span>
       <button class="button subtle" type="button" id="jump-combined">Combined finishes</button>
-      <button class="button subtle" type="button" id="jump-prior">Original + LexDraft finishes</button>
+      <button class="button subtle" type="button" id="jump-prior">Original + WorldDraft finishes</button>
       <button class="button subtle" type="button" id="jump-all">All finish</button>
     </div>
     <div class="race-scale"><span>Four systems, always visible</span><span>Share of equal work completed</span><span>Finish time</span></div>
     <div id="live-lanes" class="live-lanes"></div>
     <div class="live-insight" id="race-insight" role="status"></div>
     <div class="paired-impact" id="race-impact"></div>
-    <p class="caption lab-source">Each lane advances at its measured throughput ratio. Equal work is an abstract unit, not a generated answer. Paired percentages isolate LexDraft; combined performance includes multilingual training. Qwen3-8B · vLLM · L20.</p>
+    <p class="caption lab-source">Each lane advances at its measured throughput ratio. Equal work is an abstract unit, not a generated answer. Paired percentages isolate WorldDraft; combined performance includes multilingual training. Qwen3-8B · vLLM · L20.</p>
   </section>
 
   <section class="section wrap block-section" id="block-demo" aria-labelledby="block-title">
     <div class="section-heading">
       <div><p class="eyebrow">Inside one real block</p><h2 id="block-title">A better proposal.<br>A longer accepted prefix.</h2></div>
-      <p>This is a recorded comparison at one shared prefix, not four independent runs. Step through drafting, LexDraft’s rescore, and target verification.</p>
+      <p>This is a recorded comparison at one shared prefix, not four independent runs. Step through drafting, WorldDraft’s rescore, and target verification.</p>
     </div>
     <div class="block-lab">
       <div class="block-controls">
@@ -96,7 +96,7 @@
   <section class="section" id="trace-detail" aria-labelledby="demo-title">
     <div class="section-heading">
       <div><p class="eyebrow">The difference, up close</p><h2 id="demo-title">Finish the same answer.<br>In fewer rounds.</h2></div>
-      <p>One real Telugu request. Both runs produce the exact same 512 tokens. LexDraft finishes in 160 rounds instead of 170.</p>
+      <p>One real Telugu request. Both runs produce the exact same 512 tokens. WorldDraft finishes in 160 rounds instead of 170.</p>
     </div>
     <div class="trace-panel">
       <div class="trace-top">
@@ -111,11 +111,11 @@
             <p class="lane-foot"><span id="base-rounds">160 rounds used</span><span id="base-status">Still decoding</span></p>
           </div>
           <div class="trace-lane">
-            <div class="lane-label"><span><i class="swatch lex"></i>With LexDraft</span><strong id="lex-tokens">512 / 512 tokens</strong></div>
-            <div class="progress" id="lex-progress" role="progressbar" aria-label="LexDraft output progress" aria-valuemin="0" aria-valuemax="512" aria-valuenow="512"><div id="lex-fill" class="fill lex"></div></div>
+            <div class="lane-label"><span><i class="swatch lex"></i>With WorldDraft</span><strong id="lex-tokens">512 / 512 tokens</strong></div>
+            <div class="progress" id="lex-progress" role="progressbar" aria-label="WorldDraft output progress" aria-valuemin="0" aria-valuemax="512" aria-valuenow="512"><div id="lex-fill" class="fill lex"></div></div>
             <p class="lane-foot"><span id="lex-rounds">160 rounds used</span><span id="lex-status">Finished</span></p>
           </div>
-          <div class="trace-message" id="trace-message" role="status">LexDraft has finished. The original drafter still has 31 tokens to go.</div>
+          <div class="trace-message" id="trace-message" role="status">WorldDraft has finished. The original drafter still has 31 tokens to go.</div>
         </div>
         <div class="trace-overview">
           <h3>The complete run</h3>
@@ -134,7 +134,7 @@
       <div><p class="eyebrow">Why it works</p><h3>Let the model choose the words.<br>Help it finish their pieces.</h3></div>
       <div class="mechanism-copy">
         <p>Parallel drafting leaves later positions without the earlier draft pieces. That matters when a word spans many tokens.</p>
-        <p>LexDraft adds word-continuation counts to candidate scoring. It reranks and expands proposals within a word; the target still decides what gets accepted.</p>
+        <p>WorldDraft adds word-continuation counts to candidate scoring. It reranks and expands proposals within a word; the target still decides what gets accepted.</p>
         <details class="inline-details"><summary>Read the scoring rule</summary><div class="detail-content"><code>score(x) = log q(x) + λ · log P(x | word prefix)</code><p>A simplified view of the rule. Candidates include the drafter’s top 16 and the prior’s top 4 continuations. The full rule also scores word endings. Setting λ to zero restores the original drafter.</p><p>The replay above shows committed-token counts, not rejected proposals or pure-prior probabilities. No missing candidate trace is reconstructed.</p></div></details>
       </div>
     </div>
@@ -149,24 +149,24 @@
       </div>
       <details class="evidence static-summary"><summary>Selected four-system measurements</summary><div class="detail-content"><div class="hero-chart" aria-labelledby="comparison-title">
       <div class="chart-top">
-        <div><p class="eyebrow">Four systems. Two matched pairs.</p><h2 id="comparison-title">LexDraft helps both drafters.</h2></div>
+        <div><p class="eyebrow">Four systems. Two matched pairs.</p><h2 id="comparison-title">WorldDraft helps both drafters.</h2></div>
       </div>
-      <p class="comparison-key">Original DFlash uses no extra multilingual training.<br>Multilingual DFlash adds that training. Both are shown with and without LexDraft.</p>
+      <p class="comparison-key">Original DFlash uses no extra multilingual training.<br>Multilingual DFlash adds that training. Both are shown with and without WorldDraft.</p>
       <div id="hero-bars" class="featured-bars"></div>
       <p class="chart-caption">Throughput relative to original DFlash = 1.00× for each language. Fixed 0 to 2.5× scale.</p>
-      <p class="attribution-note">Paired percentages show the LexDraft increment on each drafter. The combined ratio includes both training and LexDraft.</p>
+      <p class="attribution-note">Paired percentages show the WorldDraft increment on each drafter. The combined ratio includes both training and WorldDraft.</p>
       <div class="chart-source"><span>Qwen3-8B · vLLM · NVIDIA L20 · concurrency 1</span><a href="#results">All 18 conditions ↗</a></div>
     </div></div></details>
       <div class="results-controls">
         <label>Concurrency<select id="concurrency"><option value="1">1 request</option><option value="8">8 requests</option><option value="32">32 requests</option></select></label>
         <p>Original DFlash = 1.00× for every condition<br><span class="muted">Greedy decoding · Qwen3-8B · L20</span></p>
       </div>
-      <p class="result-key">Fixed order: original DFlash, original + LexDraft, multilingual DFlash, multilingual + LexDraft. The gap within each pair isolates the prior’s contribution.</p>
+      <p class="result-key">Fixed order: original DFlash, original + WorldDraft, multilingual DFlash, multilingual + WorldDraft. The gap within each pair isolates the prior’s contribution.</p>
       <div id="results-bars" class="results-bars"></div>
-      <p class="caption">All ratios use the original DFlash at the same concurrency as denominator. The combined result includes training and LexDraft. Values are computed from exported, two-decimal speedups; small differences from paper percentages are rounding.</p>
+      <p class="caption">All ratios use the original DFlash at the same concurrency as denominator. The combined result includes training and WorldDraft. Values are computed from exported, two-decimal speedups; small differences from paper percentages are rounding.</p>
       <details class="evidence" id="engine-details">
         <summary><span>Inspect the full engine table</span><span class="summary-note">Training-only control, other baselines and prior increments</span></summary>
-        <div class="detail-content"><div class="table-scroll" tabindex="0" role="region" aria-label="Full engine results"><table id="engine-table"></table></div><p class="caption">All four systems are already shown above; this table adds other baselines and acceptance lengths. Speedups here are over plain target decoding, not original DFlash; mean committed tokens per round appear in parentheses. The last two columns isolate the LexDraft increment on each matched drafter.</p><a class="text-link" href="data/speed.json" download>Download engine data ↗</a></div>
+        <div class="detail-content"><div class="table-scroll" tabindex="0" role="region" aria-label="Full engine results"><table id="engine-table"></table></div><p class="caption">All four systems are already shown above; this table adds other baselines and acceptance lengths. Speedups here are over plain target decoding, not original DFlash; mean committed tokens per round appear in parentheses. The last two columns isolate the WorldDraft increment on each matched drafter.</p><a class="text-link" href="data/speed.json" download>Download engine data ↗</a></div>
       </details>
       <details class="evidence" id="loop-details">
         <summary><span>Inspect the second target family</span><span class="summary-note">Qwen and Llama speculative-loop results</span></summary>
@@ -190,7 +190,7 @@
       <summary><span>Where the evidence stops</span><span class="summary-note">Hardware, sampling and evaluation scope</span></summary>
       <div class="detail-content limits">
         <p><strong>Serving scope.</strong> Engine results use Qwen3-8B on a single NVIDIA L20. Llama evidence comes from replay and speculative-loop measurements, not the serving engine.</p>
-        <p><strong>Not a universal winner.</strong> Gains depend on language, drafter and concurrency. English changes little. At concurrency 32, the AR drafter leads the compared LexDraft variants in Telugu and Bengali.</p>
+        <p><strong>Not a universal winner.</strong> Gains depend on language, drafter and concurrency. English changes little. At concurrency 32, the AR drafter leads the compared WorldDraft variants in Telugu and Bengali.</p>
         <p><strong>Sampling and quality.</strong> The serving sweep is greedy. Sampling is evaluated using loop and target-NLL checks, not an engine sweep. Speed uses a 512-token cap; MGSM accuracy uses 2,048 tokens. <a href="data/quality.json" download>Quality data ↗</a></p>
         <p><strong>Prior coverage.</strong> Romanized Hindi has no matched prior text, so its prior is off. Word boundaries depend on the tokenizer and segmenter.</p>
       </div>
@@ -203,11 +203,11 @@
       <div class="paper-info">
         <p class="authors">Yuannuo Feng<sup>1</sup>, Wenshuai Yao<sup>2</sup>, Yizhe Chen<sup>1</sup>, Ngai Wong<sup>3</sup>, Wenyong Zhou<sup>3</sup>, Wang Kang<sup>1</sup></p>
         <p class="affiliations"><sup>1</sup> Beihang University<br><sup>2</sup> Peking University<br><sup>3</sup> The University of Hong Kong</p>
-        <p class="caption">Paper, code and count tables will be linked when publicly released. The author profile below is not a code repository.</p>
-        <a class="text-link" href="https://github.com/Kissmetothemoon" target="_blank" rel="noopener noreferrer">Author’s GitHub ↗</a>
+        <p class="caption">The code repository includes the within-word prior, benchmarking scripts and measured results.</p>
+        <a class="text-link" href="https://github.com/Kissmetothemoon/WorldDraft" target="_blank" rel="noopener noreferrer">Source code ↗</a>
       </div>
     </div>
-    <div class="wrap"><details class="evidence citation"><summary>Cite this work</summary><div class="detail-content"><div class="copy-row"><button type="button" class="button secondary" id="copy-bib">Copy BibTeX</button><span id="copy-status" role="status"></span></div><pre id="bib">@misc{lexdraft2026,
+    <div class="wrap"><details class="evidence citation"><summary>Cite this work</summary><div class="detail-content"><div class="copy-row"><button type="button" class="button secondary" id="copy-bib">Copy BibTeX</button><span id="copy-status" role="status"></span></div><pre id="bib">@misc{worlddraft2026,
   title = {What Slows Parallel Diffusion Drafters Across Languages?},
   author = {Feng, Yuannuo and Yao, Wenshuai and Chen, Yizhe and Wong, Ngai and Zhou, Wenyong and Kang, Wang},
   note = {Manuscript under review},
@@ -215,7 +215,7 @@
 }</pre></div></details></div>
   </section>
 </main>
-<footer class="wrap footer"><a class="brand" href="#main">Lex<span>Draft</span></a><p>Same target. Better proposals.</p><a href="#main">Back to top ↑</a></footer>
+<footer class="wrap footer"><a class="brand" href="#main" aria-label="WorldDraft home"><span class="brand-lockup" aria-hidden="true"></span></a><p>Same target. Better proposals.</p><a href="#main">Back to top ↑</a></footer>
 <noscript><div class="no-script">Interactive comparisons require JavaScript. Download the <a href="data/speed.json">engine data</a> or <a href="data/seqs.json">decoding trace</a> to inspect the results.</div></noscript>
 </body>
 </html>

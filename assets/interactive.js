@@ -6,9 +6,9 @@
   const names={en:"English",de:"German",fr:"French",es:"Spanish",ru:"Russian",zh:"Chinese",ja:"Japanese",ko:"Korean",ar:"Arabic",th:"Thai",sw:"Swahili",hi:"Hindi",bn:"Bengali",te:"Telugu",am:"Amharic","sr-Cyrl":"Serbian (Cyrillic)","sr-Latn":"Serbian (Latin)","hi-Latn":"Hindi (Latin)"};
   const meta={
     dpub:{name:"Original DFlash",note:"No extra multilingual training",tone:"base"},
-    dpub_lex:{name:"Original DFlash + LexDraft",note:"Same drafter, add the prior",tone:"prior"},
+    dpub_lex:{name:"Original DFlash + WorldDraft",note:"Same drafter, add the prior",tone:"prior"},
     dml:{name:"Multilingual DFlash",note:"Multilingual training only",tone:"trained"},
-    dml_lex:{name:"Multilingual DFlash + LexDraft",note:"Multilingual training + prior",tone:"combined"}
+    dml_lex:{name:"Multilingual DFlash + WorldDraft",note:"Multilingual training + prior",tone:"combined"}
   };
   const reduced=matchMedia("(prefers-reduced-motion: reduce)");
   let lang="te",concurrency="1",row,time=0,frame=null,startAt=0,startTime=0;
@@ -68,7 +68,7 @@
       laneNodes[arm.key]={root,fill,progress,percent,state,tiles};
     });
     const impact=$("#race-impact");impact.replaceChildren();
-    for(const [title,value] of [["LexDraft on original",M.formatGain(row.priorGain)],["LexDraft on multilingual",M.formatGain(row.priorOnMultilingualGain)],["Combined vs original",row.arms[3].ratio.toFixed(2)+"×"]]){
+    for(const [title,value] of [["WorldDraft on original",M.formatGain(row.priorGain)],["WorldDraft on multilingual",M.formatGain(row.priorOnMultilingualGain)],["Combined vs original",row.arms[3].ratio.toFixed(2)+"×"]]){
       const box=node("p");box.append(node("span","",title),node("strong","",value));impact.append(box);
     }
     renderTime(100/row.arms[3].ratio);
@@ -109,14 +109,14 @@
     const r=B.rounds[blockIndex],host=$("#piece-inspector");host.replaceChildren();
     host.append(node("strong","","Position "+(selected+1)));
     host.append(node("span","","DFlash: "+tokenName(r,r.plain_pick[selected])));
-    host.append(node("span","","After LexDraft: "+tokenName(r,r.lex_pick[selected])));
+    host.append(node("span","","After WorldDraft: "+tokenName(r,r.lex_pick[selected])));
     const changed=r.plain_pick[selected]!==r.lex_pick[selected];
-    host.append(node("span","",changed?"LexDraft changed this proposal.":"Both propose the same token here."));
+    host.append(node("span","",changed?"WorldDraft changed this proposal.":"Both propose the same token here."));
   }
   function renderBlock(){
     const r=B.rounds[blockIndex],snapshot=M.blockSnapshot(r,phase),host=$("#block-rows");host.replaceChildren();
     for(const button of document.querySelectorAll(".block-steps button"))button.setAttribute("aria-pressed",String(Number(button.dataset.phase)===phase));
-    for(const [key,title,accepted] of [["plain","DFlash proposal",r.accepted_plain],["lex","After LexDraft",r.accepted_lex]]){
+    for(const [key,title,accepted] of [["plain","DFlash proposal",r.accepted_plain],["lex","After WorldDraft",r.accepted_lex]]){
       const line=node("div","block-row "+key);
       const label=node("div","block-row-label");label.append(node("strong","",title),node("span","",phase===2?accepted+" accepted":phase===0?"Neural proposals":"Before target verification"));
       const pieces=node("div","block-pieces");
@@ -132,11 +132,11 @@
       line.append(label,pieces);host.append(line);
     }
     let message;
-    if(phase===0)message="One neural pass proposes every position. The second row is the same proposal before LexDraft is applied.";
+    if(phase===0)message="One neural pass proposes every position. The second row is the same proposal before WorldDraft is applied.";
     else if(phase===1)message="The prior changes "+snapshot.lex.filter(p=>p.changed).length+" proposals at this prefix. An outline marks a changed candidate; target acceptance is not shown yet.";
     else {
       const delta=r.accepted_lex-r.accepted_plain;
-      message=delta>0?"The first mismatch moves later: "+r.accepted_plain+" accepted without LexDraft, "+r.accepted_lex+" with it. "+delta+" extra draft tokens survive this check.":delta===0?"Both accept "+r.accepted_plain+" draft tokens at this prefix. Changing candidates does not guarantee a gain every round.":"This recorded prefix accepts fewer proposals with LexDraft. Local results are not forced to improve.";
+      message=delta>0?"The first mismatch moves later: "+r.accepted_plain+" accepted without WorldDraft, "+r.accepted_lex+" with it. "+delta+" extra draft tokens survive this check.":delta===0?"Both accept "+r.accepted_plain+" draft tokens at this prefix. Changing candidates does not guarantee a gain every round.":"This recorded prefix accepts fewer proposals with WorldDraft. Local results are not forced to improve.";
     }
     $("#block-verdict").textContent=message;renderInspector();
   }

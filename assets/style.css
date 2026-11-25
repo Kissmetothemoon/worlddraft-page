@@ -18,7 +18,9 @@ h1, h2, h3 { line-height: 1.15; }
 .topbar { background: var(--page); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
 .nav-row { display: flex; align-items: center; height: 72px; gap: 32px; }
 .brand { display: inline-flex; align-items: center; text-decoration: none; font-size: 20px; font-weight: 750; letter-spacing: var(--tracking-title); white-space: nowrap; }
-.brand > span:first-child { color: var(--brand); }
+.brand-lockup { display: block; width: 150px; height: 33px; background: url("brand/worlddraft.svg") left center / contain no-repeat; }
+[data-theme="dark"] .brand-lockup { background-image: url("brand/worlddraft-dark.svg"); }
+@media (max-width: 480px) { .brand-lockup { width: 116px; height: 26px; } }
 .brand-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-fill); margin-left: 6px; align-self: flex-start; margin-top: 8px; }
 nav { display: flex; align-items: center; gap: 32px; margin-left: auto; }
 nav a { text-decoration: none; font-size: 13px; color: var(--secondary); }

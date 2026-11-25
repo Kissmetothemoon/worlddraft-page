@@ -4,7 +4,7 @@ import path from "node:path";
 import os from "node:os";
 import {spawn} from "node:child_process";
 import assert from "node:assert/strict";
-import {fileURLToPath} from "node:url";
+import {fileURLToPath, pathToFileURL} from "node:url";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const out=path.join(root,"verification");
 fs.mkdirSync(out,{recursive:true});
@@ -17,14 +17,14 @@ const server=http.createServer((req,res)=>{
   if(!file.startsWith(root+path.sep)){res.writeHead(403);res.end();return;}
   fs.readFile(file,(err,buf)=>{
     if(err){res.writeHead(404);res.end();return;}
-    const type={".html":"text/html",".css":"text/css",".js":"application/javascript",".json":"application/json",".png":"image/png"}[path.extname(file)]||"application/octet-stream";
+    const type={".html":"text/html",".css":"text/css",".js":"application/javascript",".json":"application/json",".png":"image/png",".svg":"image/svg+xml"}[path.extname(file)]||"application/octet-stream";
     res.writeHead(200,{"Content-Type":type+"; charset=utf-8"});res.end(buf);
   });
 });
 await new Promise(r=>server.listen(0,"127.0.0.1",r));
 const url="http://127.0.0.1:"+server.address().port+"/";
-const profile=fs.mkdtempSync(path.join(os.tmpdir(),"lexdraft-cdp-"));
-const chrome=spawn("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",[
+const profile=fs.mkdtempSync(path.join(os.tmpdir(),"worlddraft-cdp-"));
+const chrome=spawn(process.env.CHROME_BIN || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",[
   "--headless=new","--disable-gpu","--disable-background-networking","--disable-extensions",
   "--no-first-run","--no-default-browser-check","--no-proxy-server","--remote-debugging-port=0",
   "--user-data-dir="+profile,"about:blank"
@@ -98,7 +98,7 @@ try{
   assert.equal(await text('#hero-bars [data-lang="en"] .prior-gain'),"−0.4% on original");
   assert.equal(await text("#base-tokens"),"481 / 512 tokens");
   assert.equal(await text("#lex-tokens"),"512 / 512 tokens");
-  log("PASS default milestone: round 160, base 481/512, LexDraft 512/512");
+  log("PASS default milestone: round 160, base 481/512, WorldDraft 512/512");
   const originalColors=await evaluate("({text:getComputedStyle(document.querySelector('.caption')).color,bg:getComputedStyle(document.body).backgroundColor})");
   fs.writeFileSync(path.join(out,"colors.json"),JSON.stringify(originalColors,null,2));
   await shot("desktop-hero");
@@ -145,7 +145,7 @@ try{
   assert.equal(await evaluate("document.querySelector('[data-system=dml]').classList.contains('done')"),true);
   assert.equal(await evaluate("document.querySelector('[data-system=dml_lex]').classList.contains('done')"),false);
   await select("#race-language","te");
-  log("PASS all 54 race settings: 216 progress/finish values match data; English does not force LexDraft to win");
+  log("PASS all 54 race settings: 216 progress/finish values match data; English does not force WorldDraft to win");
   assert.equal(await evaluate("document.querySelectorAll('.block-row.plain .accepted').length"),1);
   assert.equal(await evaluate("document.querySelectorAll('.block-row.lex .accepted').length"),3);
   await click('.block-steps [data-phase="0"]');
@@ -155,7 +155,7 @@ try{
   assert.equal(await evaluate("document.querySelectorAll('.block-cell.rejected').length"),0);
   await click('.block-steps [data-phase="2"]');
   await click('.block-row.lex [data-position="1"]');
-  assert.ok((await text("#piece-inspector")).includes("LexDraft changed"));
+  assert.ok((await text("#piece-inspector")).includes("WorldDraft changed"));
   for(let n=0;n<8;n++){
     await select("#block-round",String(n));
     const ok=await evaluate("(()=>{const r=LEXBLOCK.rounds[Number(document.querySelector('#block-round').value)];return document.querySelectorAll('.block-row.plain .accepted').length===r.accepted_plain && document.querySelectorAll('.block-row.lex .accepted').length===r.accepted_lex})()");
@@ -282,7 +282,7 @@ try{
   assert.equal(failedRequests.length,0,JSON.stringify(failedRequests));
   assert.equal(httpFailures.length,0,JSON.stringify(httpFailures));
   log("PASS browser console errors: 0; transport failures: 0; HTTP errors: 0; paper images: 0");
-  await call("Page.navigate",{url:"file://"+root+"/index.html"});
+  await call("Page.navigate",{url:pathToFileURL(path.join(root,"index.html")).href});
   for(let i=0;i<100;i++){if(await evaluate("location.protocol==='file:' && document.documentElement.dataset.interactiveReady==='true'"))break;await wait(50);}
   assert.equal(await evaluate("location.protocol"),"file:");
   assert.equal(await evaluate("document.documentElement.dataset.ready"),"true");
@@ -299,10 +299,12 @@ try{
   if(ws&&ws.readyState===1){try{await shot("failure");}catch{}}
   process.exitCode=1;
 }finally{
-  if(ws)ws.close();
   const exited=new Promise(resolve=>{if(chrome.exitCode!==null)resolve();else chrome.once("exit",resolve);});
-  chrome.kill("SIGTERM");
+  if(ws && ws.readyState===1){
+    try { await call("Browser.close"); } catch { chrome.kill("SIGTERM"); }
+  } else { chrome.kill("SIGTERM"); }
+  if(ws)ws.close();
   await exited;
-  fs.rmSync(profile,{recursive:true,force:true});
+  await fs.promises.rm(profile,{recursive:true,force:true,maxRetries:12,retryDelay:250});
   server.close();
 }

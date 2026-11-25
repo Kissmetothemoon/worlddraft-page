@@ -68,7 +68,7 @@ test("training-only control is visible data, not folded into the combined gain",
   assert.deepEqual(te.arms.map(a=>a.ratio.toFixed(2)),["1.00","1.50","2.07","2.43"]);
   assert.equal(te.arms[2].absolute,2.24);
 });
-test("paired LexDraft increments use original and multilingual denominators respectively",()=>{
+test("paired WorldDraft increments use original and multilingual denominators respectively",()=>{
   const te=M.fourArmRows(speed,1).find(r=>r.lang==="te");
   assert.equal(M.formatGain(te.priorGain),"+50.0%");
   assert.equal(M.formatGain(te.priorOnMultilingualGain),"+17.0%");

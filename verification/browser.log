@@ -1,9 +1,9 @@
 PASS initial load: four-lane interactive exhibit and recorded block inspector ready
-PASS default milestone: round 160, base 481/512, LexDraft 512/512
+PASS default milestone: round 160, base 481/512, WorldDraft 512/512
 PASS optional measurement chart retains all four systems in fixed order
 PASS playback controls precede lanes; normalized-time tick 100 is positioned at 100/110
 PASS four-lane playback: synchronized start, pause, reset and finish checkpoints
-PASS all 54 race settings: 216 progress/finish values match data; English does not force LexDraft to win
+PASS all 54 race settings: 216 progress/finish values match data; English does not force WorldDraft to win
 PASS real block interaction: draft/rescore/verify phases, clickable proposals, all 8 recorded prefixes
 PASS reduced-motion mode: race and block are manual, with no autoplay
 PASS replay endpoints: tied round 15 is 7.4% progress; final rounds 170 vs 160

@@ -12,7 +12,7 @@
   const mode = window.matchMedia("(prefers-color-scheme: dark)");
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   let userTheme = null;
-  try { userTheme = localStorage.getItem("lexdraft-theme"); } catch { /* Storage is optional. */ }
+  try { userTheme = localStorage.getItem("worlddraft-theme"); } catch { /* Storage is optional. */ }
   const setTheme = theme => {
     document.documentElement.dataset.theme = theme;
     $("#theme-toggle").textContent = theme === "dark" ? "Light" : "Dark";
@@ -22,15 +22,15 @@
   $("#theme-toggle").addEventListener("click", () => {
     userTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     setTheme(userTheme);
-    try { localStorage.setItem("lexdraft-theme",userTheme); } catch { /* Keep session choice. */ }
+    try { localStorage.setItem("worlddraft-theme",userTheme); } catch { /* Keep session choice. */ }
   });
   mode.addEventListener("change", () => { if (!userTheme) setTheme(mode.matches ? "dark" : "light"); });
 
   const ARM_META = {
     dpub: {tone:"base",label:"Original DFlash",short:"Original DFlash"},
-    dpub_lex: {tone:"prior",label:"Original DFlash + LexDraft",short:"+ LexDraft"},
+    dpub_lex: {tone:"prior",label:"Original DFlash + WorldDraft",short:"+ WorldDraft"},
     dml: {tone:"trained",label:"Multilingual-trained DFlash",short:"Multilingual DFlash"},
-    dml_lex: {tone:"combined",label:"Multilingual-trained DFlash + LexDraft",short:"+ LexDraft"}
+    dml_lex: {tone:"combined",label:"Multilingual-trained DFlash + WorldDraft",short:"+ WorldDraft"}
   };
   // Four simultaneous arms; every denominator is public DFlash, never dml.
   function fourBars(row) {
@@ -88,7 +88,7 @@
   let cursor, baseDot, lexDot;
   function drawTraceChart() {
     const chart = svg("svg",{viewBox:"0 0 390 226",role:"img","aria-labelledby":"trace-svg-title"});
-    chart.append(svg("title",{id:"trace-svg-title"},"Cumulative token progress: drafter 170 rounds, LexDraft 160 rounds. Both finish at 512 tokens."));
+    chart.append(svg("title",{id:"trace-svg-title"},"Cumulative token progress: drafter 170 rounds, WorldDraft 160 rounds. Both finish at 512 tokens."));
     for (const tokens of [0,256,512]) {
       chart.append(svg("line",{x1:38,x2:362,y1:chartY(tokens),y2:chartY(tokens),class:"svg-grid"}));
       chart.append(svg("text",{x:30,y:chartY(tokens)+4,"text-anchor":"end",class:"svg-label"},String(tokens)));
@@ -121,13 +121,13 @@
     $("#round-output").textContent=round;
     $("#next-round").disabled=round>=lastRound;
     let message;
-    if (state.base.done && state.lex.done) message="Same 512-token answer. LexDraft used 160 rounds; the original drafter used 170.";
-    else if (state.lex.done) message="LexDraft has finished. The original drafter still has "+(goal-state.base.tokens)+" tokens to go.";
+    if (state.base.done && state.lex.done) message="Same 512-token answer. WorldDraft used 160 rounds; the original drafter used 170.";
+    else if (state.lex.done) message="WorldDraft has finished. The original drafter still has "+(goal-state.base.tokens)+" tokens to go.";
     else if (round===0) message="Same request, same target. Step through the measured decoding rounds.";
     else if (state.base.tokens===state.lex.tokens) message="Both runs have committed "+state.base.tokens+" tokens so far. The full-run outcome remains visible above.";
     else {
       const delta=state.lex.tokens-state.base.tokens;
-      message=delta>0 ? "After "+round+" rounds, LexDraft has committed "+delta+" more tokens." : "At this round the original drafter is ahead by "+Math.abs(delta)+" tokens. Local leads can change.";
+      message=delta>0 ? "After "+round+" rounds, WorldDraft has committed "+delta+" more tokens." : "At this round the original drafter is ahead by "+Math.abs(delta)+" tokens. Local leads can change.";
     }
     $("#trace-message").textContent=message;
     cursor.setAttribute("x1",chartX(round)); cursor.setAttribute("x2",chartX(round));
@@ -186,7 +186,7 @@
   }
   function renderEngine() {
     const table=$("#engine-table");
-    const body=tableHead(table,"Concurrency "+concurrency+" · speedup (mean committed tokens per round)",["Language","Target tok/s","AR drafter","EAGLE-3","Original DFlash","DFlash + LexDraft","ML training only","ML + LexDraft","Prior on original","Prior on ML"]);
+    const body=tableHead(table,"Concurrency "+concurrency+" · speedup (mean committed tokens per round)",["Language","Target tok/s","AR drafter","EAGLE-3","Original DFlash","DFlash + WorldDraft","ML training only","ML + WorldDraft","Prior on original","Prior on ML"]);
     for(const row of D.speed.speed[concurrency]){
       const tr=el("tr");tr.append(el("td","",names[row.lang]),el("td","",String(row.ar_tok_s)));
       for(const key of ["ar_draft","eagle3","dpub","dpub_lex","dml","dml_lex"]){
@@ -198,7 +198,7 @@
     }
   }
   function renderLoop() {
-    const body=tableHead($("#loop-table"),"Matched speculative loop · public DFlash = 1.00",["Task","Language","Target","Public + LexDraft","Multilingual","Multilingual + LexDraft"]);
+    const body=tableHead($("#loop-table"),"Matched speculative loop · public DFlash = 1.00",["Task","Language","Target","Public + WorldDraft","Multilingual","Multilingual + WorldDraft"]);
     for(const row of D.main) for(const target of ["qwen","llama"]){
       const tr=el("tr");tr.append(el("td","",row.task),el("td","",names[row.lang]),el("td","",target==="qwen"?"Qwen3-8B":"Llama-3.1-8B"));
       for(const key of ["pub","ml","mllex"]){const v=row[target][key];tr.append(el("td","",v.v.toFixed(2)+" ± "+v.ci.toFixed(2)));}

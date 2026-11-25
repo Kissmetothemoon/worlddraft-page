@@ -1,10 +1,10 @@
 {
   "browser": {
     "protocolVersion": "1.3",
-    "product": "Chrome/149.0.7827.54",
-    "revision": "@42ce21f112d0b2ba486bbb5cadb225f78b4ddb97",
-    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.0.0 Safari/537.36",
-    "jsVersion": "14.9.207.21"
+    "product": "Edg/158.0.4370.33",
+    "revision": "@56b8f691820060b6e15f702165117f203442943f",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36 Edg/158.0.0.0",
+    "jsVersion": "15.8.13.3"
   },
   "checks": 26,
   "errors": [],

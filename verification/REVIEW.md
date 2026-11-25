@@ -41,7 +41,7 @@ verification/unit.log：25 tests / 25 pass / 0 fail。
 verification/browser.log：26 组验收，关键项目：
 - 第 4 行：播放控件在四条 lane 前，time=100 刻度实际位于 100/110。
 - 第 5 行：同步播放、暂停、复位及完成节点。
-- 第 6 行：54 个设置、216 个 progress/finish 值；English 不强制 LexDraft 获胜。
+- 第 6 行：54 个设置、216 个 progress/finish 值；English 不强制 WorldDraft 获胜。
 - 第 7 行：8 组真实 prefix 和三个阶段、点击候选位置。
 - 第 8 行：减少动态效果不自动播放。
 - 第 15-19 行：五种宽度无页面水平溢出。
