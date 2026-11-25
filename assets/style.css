@@ -309,10 +309,6 @@ pre { white-space: pre-wrap; padding: 20px; margin: 16px 0 0; background: var(--
 }
 
 /* The interactive exhibit, rather than the result chart, is the main event. */
-.interactive-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding-block: 40px 32px; align-items: center; }
-.interactive-intro .eyebrow { margin-bottom: 12px; }
-.interactive-intro h1 { font-size: 40px; }
-.interactive-intro .hero-description { margin: 0 0 16px; font-size: 16px; }
 .interactive-main { background: var(--surface); box-shadow: 0 0 0 1px var(--border); border-radius: 14px; padding: 28px 32px; margin-bottom: 40px; }
 .lab-top { display: flex; align-items: start; justify-content: space-between; gap: 24px; }
 .lab-top h2 { font-size: 24px; letter-spacing: var(--tracking-title); }
@@ -407,8 +403,6 @@ pre { white-space: pre-wrap; padding: 20px; margin: 16px 0 0; background: var(--
   .block-steps button { padding-inline: 8px; }
 }
 @media (max-width: 800px) {
-  .interactive-intro { gap: 32px; }
-  .interactive-intro h1 { font-size: 32px; }
   .race-scale { display: none; }
   .live-lanes { margin-top: 16px; }
   .live-lane { grid-template-columns: minmax(0,1fr) 88px; gap: 8px 16px; }
@@ -422,11 +416,6 @@ pre { white-space: pre-wrap; padding: 20px; margin: 16px 0 0; background: var(--
   .block-controls { gap: 12px; }
 }
 @media (max-width: 540px) {
-  .interactive-intro { grid-template-columns: 1fr; gap: 16px; padding-block: 28px 24px; }
-  .interactive-intro h1 br { display: none; }
-  .interactive-intro h1 span::before { content: " "; }
-  .interactive-intro h1 { font-size: 32px; }
-  .interactive-intro .hero-description { font-size: 14px; margin-bottom: 8px; }
   .interactive-main, .block-lab { padding: 20px; }
   .lab-top { display: block; }
   .lab-top > a { display: inline-block; margin-top: 8px; font-size: 12px; }
@@ -452,3 +441,11 @@ pre { white-space: pre-wrap; padding: 20px; margin: 16px 0 0; background: var(--
   .block-legend { gap: 8px 16px; }
   .archived-trace > summary > span { margin-left: 0; }
 }
+
+.research-intro { padding-block: clamp(34px,5vw,64px) 30px; text-align: center; }
+.research-intro h1 { max-width: 27ch; margin: 0 auto; font-size: clamp(32px,4vw,50px); line-height: 1.09; text-wrap: balance; }
+.research-byline { display: flex; flex-wrap: wrap; justify-content: center; gap: .3em 1.05em; margin: 17px auto 0; color: var(--secondary); font-size: 14px; }
+.research-byline span { white-space: nowrap; }
+.research-links { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
+.research-links a { display: inline-flex; align-items: center; padding: 6px 15px; color: var(--foreground); border: 1px solid var(--border); border-radius: 24px; font-size: 14px; line-height: 1.4; font-weight: 600; text-decoration: none; }
+.research-links a:hover { border-color: currentColor; text-decoration: underline; }
