@@ -377,6 +377,8 @@ try{
   log("PASS public atlas deep links initialize and switch evidence layers");
   const locales=await evaluate("Array.from(document.querySelector('#site-locale').options,o=>o.value)");
   assert.equal(locales.length,18);
+  assert.equal(locales[0],"en");
+  assert.equal(locales.at(-1),"ar");
   assert.equal(await evaluate("document.documentElement.lang"),"en");
   const protectedText=await evaluate("['#bib','#pieces-en','#pieces-te'].map(s=>document.querySelector(s).textContent)");
   await select("#atlas-condition","sr-Latn");
@@ -415,6 +417,44 @@ try{
   }
   await select("#site-locale","ar");await waitLocale("ar");
   await call("Page.navigate",{url});await waitLocale("ar");
+  // Text content alone cannot detect a fraction or interval drawn backwards by bidi layout.
+  await click("#recorded-trace > summary");
+  await click(".static-summary > summary");
+  await click("#engine-details > summary");
+  await click("#loop-details > summary");
+  const numericRuns=[
+    [".race-scrubber bdi",await text("#race-time-value")+" / 110"],
+    ["#base-tokens","481 / 512"],[".scrubber bdi","160 / 170"],
+    ["#engine-table tbody td:nth-child(3)",await text("#engine-table tbody td:nth-child(3)")],
+    ["#loop-table tbody td:nth-child(4)",await text("#loop-table tbody td:nth-child(4)")],
+    ["#hero-bars [data-lang=en] .prior-gain","−0.4%"]
+  ];
+  await click("#atlas-decoding");
+  numericRuns.push(["#atlas-public","0.72×"]);
+  for(const width of [320,1440]){
+    await viewport(width,900,width===320);
+    for(const [selector,run] of numericRuns){
+      const increasing=await evaluate(`(() => {
+        const host=document.querySelector(${JSON.stringify(selector)});
+        const walker=document.createTreeWalker(host,NodeFilter.SHOW_TEXT);
+        const rect=document.createRange(), centers=[];
+        let content="",node;
+        while(node=walker.nextNode()) for(let i=0;i<node.length;i++){
+          rect.setStart(node,i);rect.setEnd(node,i+1);
+          const box=rect.getBoundingClientRect();
+          content+=node.data[i];centers.push(box.left+box.width/2);
+        }
+        const sample=${JSON.stringify(run)},start=content.indexOf(sample);
+        return start>=0 && centers.slice(start+1,start+sample.length).every((x,i)=>x>centers[start+i]);
+      })()`);
+      assert.ok(increasing,"RTL visual order: "+selector+" "+run+" at "+width);
+    }
+    assert.equal(await evaluate("getComputedStyle(document.querySelector('#site-locale')).direction"),"ltr");
+    assert.equal(await evaluate("document.querySelector('.nav-row .brand').getBoundingClientRect().right <= document.querySelector('#site-locale').getBoundingClientRect().left"),true);
+  }
+  await viewport(320,850,true);
+  assert.ok(await evaluate("document.querySelector('.time-ticks > :last-child').getBoundingClientRect().left-document.querySelector('.time-ticks > :nth-child(3)').getBoundingClientRect().right >= 3"));
+  log("PASS Arabic: consistent menu order and navigation; ratios, signed gains, intervals and mobile ticks render in visual order");
   await call("Page.navigate",{url:url+"?lang=zh-Hans#atlas-decoding"});await waitLocale("zh-Hans");
   assert.equal(await evaluate("document.querySelector('#speed-panel').hidden"),false);
   await select("#site-locale","en");await waitLocale("en");

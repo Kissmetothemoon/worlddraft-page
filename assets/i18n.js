@@ -2,6 +2,7 @@
   "use strict";
   const selector = document.getElementById("site-locale");
   const supported = new Set(Array.from(selector.options, o => o.value));
+  const version = new URL(document.currentScript.src).search;
   const bindings = [];
   const dictionaries = window.WorldDraftMessages = Object.create(null);
   const loading = new Map();
@@ -39,8 +40,7 @@
   function apply(code) {
     locale = code;
     document.documentElement.lang = code;
-    const direction = selector.querySelector(`option[value="${code}"]`).dir;
-    document.documentElement.dir = direction === "rtl" ? "rtl" : "ltr";
+    document.documentElement.dir = code === "ar" ? "rtl" : "ltr";
     languageNames = new Intl.DisplayNames([code], {type:"language",fallback:"none"});
     scriptNames = new Intl.DisplayNames([code], {type:"script",fallback:"none"});
     for (const {node,attr,source,key} of bindings) {
@@ -61,7 +61,7 @@
     if (code==="en" || dictionaries[code]) return Promise.resolve();
     if (!loading.has(code)) {
       const script=document.createElement("script");
-      script.src="assets/locales/"+code+".js";
+      script.src="assets/locales/"+code+".js"+version;
       loading.set(code,new Promise((resolve,reject)=>{
         script.onload=()=>dictionaries[code] ? resolve() : reject(new Error("Missing locale"));
         script.onerror=reject;

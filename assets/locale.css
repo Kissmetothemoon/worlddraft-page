@@ -27,11 +27,15 @@ html:not([lang="en"]) .draft-diagrams svg text {font-size:12px;}
  .block-controls label {width:100%;}
  .block-controls select {width:100%;}
 }
-html[dir="rtl"] nav {margin-left:0;margin-inline-start:auto;}
+html[dir="rtl"] .nav-row {direction:ltr;}
+html[dir="rtl"] .nav-row nav {direction:rtl;}
 html[dir="rtl"] :is(.atlas-readout,.atlas-speeds caption,.atlas-speeds th,.draft-diagrams,.lab-controls,.block-row-label,.properties,.paper-info) {text-align:start;}
 html[dir="rtl"] .atlas-readout {border-left:0;border-inline-start:1px solid var(--border);}
 html[dir="rtl"] :is(#atlas-svg,.survey-strip svg,.draft-diagrams svg,#trace-chart,.result-row .bar-track,.live-body,.time-ticks,.block-pieces,.word-pieces,.progress,#bib,code,.bar-track,input[type="range"]) {direction:ltr;}
-html[dir="rtl"] :is(.atlas-speeds td,.bar-value,.combined-result,.prior-gain,.trained-prior-gain,.survey-metric strong,.piece-inspector span) {unicode-bidi:plaintext;}
+html[dir="rtl"] :is(.atlas-speeds td,.bar-value,.survey-metric strong,.finish-button strong,.paired-impact strong,#engine-table tbody td:not(:first-child),#loop-table tbody td:nth-child(n+4)) {direction:ltr;unicode-bidi:isolate;}
+html[dir="rtl"] :is(.piece-inspector span,.word-native) {unicode-bidi:plaintext;}
+.race-scrubber bdi,.scrubber bdi {white-space:nowrap;}
+@media(max-width:420px){.time-ticks > span:nth-child(3) {transform:translateX(-100%);}}
 html[dir="rtl"] .brand-lockup {background-position:right center;}
 html[dir="rtl"] .research-byline,html[dir="rtl"] .authors {direction:ltr;}
 @media(max-width:700px){html[dir="rtl"] .atlas-readout {border-inline-start:0;}}
