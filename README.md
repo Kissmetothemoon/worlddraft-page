@@ -7,6 +7,12 @@
 
 Compare measured throughput across 18 language and script conditions and inspect eight recorded draft blocks. Open `index.html` directly or serve this directory with a static HTTP server.
 
+### Website languages
+
+The header language selector covers all 16 benchmark languages in 18 language–script variants. English is the first-visit default. An explicit `?lang=` link takes precedence over the preference saved in the browser. For example, [Telugu](https://kissmetothemoon.github.io/worlddraft-page/?lang=te#word-fragmentation) and [Arabic](https://kissmetothemoon.github.io/worlddraft-page/?lang=ar#background) open the corresponding localized sections. Switching the interface language preserves the selected benchmark, map view and replay state.
+
+Translations are checked-in resources in `assets/locales/`. The page loads the selected language from this site and also works offline. Extended translations were prepared with local NLLB-200 machine assistance. Romanized Hindi and Latin-script Serbian are transliterations of their respective interface versions. Technical examples, recorded token pieces, citation metadata and Glottolog catalogue names retain their source forms. Corrections to terminology and translation are welcome.
+
 ### Four-lane exhibit
 
 This is an equal-work illustration driven by measured aggregate throughput. It is NOT a four-run trace, request latency measurement, live model call, or token-level timing capture.

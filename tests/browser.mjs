@@ -375,6 +375,56 @@ try{
   await stable();
   assert.equal(await evaluate("document.querySelector('#speed-panel').hidden"),false);
   log("PASS public atlas deep links initialize and switch evidence layers");
+  const locales=await evaluate("Array.from(document.querySelector('#site-locale').options,o=>o.value)");
+  assert.equal(locales.length,18);
+  assert.equal(await evaluate("document.documentElement.lang"),"en");
+  const protectedText=await evaluate("['#bib','#pieces-en','#pieces-te'].map(s=>document.querySelector(s).textContent)");
+  await select("#atlas-condition","sr-Latn");
+  await select("#race-concurrency","8");
+  await select("#block-round","4");
+  async function waitLocale(code) {
+    for(let i=0;i<200;i++){
+      if(await evaluate("document.documentElement.lang==="+JSON.stringify(code)))return;
+      await wait(25);
+    }
+    assert.fail("Locale did not load: "+code);
+  }
+  const localizedWidths=[320,390,768,1440];
+  for(const code of locales.slice(1)){
+    await select("#site-locale",code);await waitLocale(code);
+    assert.notEqual(await text("#hero-title"),"What Slows Parallel Diffusion Drafters Across Languages?");
+    assert.equal(await evaluate("document.documentElement.dir"),code==="ar"?"rtl":"ltr");
+    assert.equal(await evaluate("document.querySelector('#atlas-condition').value"),"sr-Latn");
+    assert.equal(await evaluate("document.querySelector('#race-concurrency').value"),"8");
+    assert.equal(await evaluate("document.querySelector('#block-round').value"),"4");
+    assert.equal(await text("#atlas-public"),"0.86×");
+    assert.deepEqual(await evaluate("['#bib','#pieces-en','#pieces-te'].map(s=>document.querySelector(s).textContent)"),protectedText);
+    await click("#atlas-tokenization");await select("#survey-condition","sat_Olck");
+    assert.equal(await text("#survey-tpw"),"10.12");
+    assert.notEqual(await text("#race-restart"),"Reset","reset label "+code);
+    for(const width of localizedWidths){
+      await viewport(width,900,width<769);
+      const extra=await evaluate("document.documentElement.scrollWidth-document.documentElement.clientWidth");
+      assert.ok(extra<=1,"horizontal overflow "+code+" "+width+" +"+extra);
+    }
+    if(code==="ar" || code==="zh-Hans" || code==="te"){
+      await evaluate("window.scrollTo({top:0,behavior:'instant'});document.activeElement.blur()");
+      await sectionShot("#background","locale-"+code);
+    }
+    await click("#atlas-decoding");
+  }
+  await select("#site-locale","ar");await waitLocale("ar");
+  await call("Page.navigate",{url});await waitLocale("ar");
+  await call("Page.navigate",{url:url+"?lang=zh-Hans#atlas-decoding"});await waitLocale("zh-Hans");
+  assert.equal(await evaluate("document.querySelector('#speed-panel').hidden"),false);
+  await select("#site-locale","en");await waitLocale("en");
+  assert.equal(await text("#hero-title"),"What Slows Parallel Diffusion Drafters Across Languages?");
+  assert.equal(await text("#race-restart"),"Reset");
+  await call("Page.navigate",{url:pathToFileURL(path.join(root,"index.html")).href+"?lang=te#word-fragmentation"});
+  await waitLocale("te");
+  assert.equal(await text("#race-restart"),"మళ్లీ మొదలుపెట్టండి");
+  assert.equal(errors.length,0,JSON.stringify(errors));assert.equal(httpFailures.length,0,JSON.stringify(httpFailures));
+  log("PASS 18 site locales: default, persistence, link override, RTL, four viewport widths and interaction state");
   const metadata={browser:await call("Browser.getVersion"),checks:checks.length,errors,failedRequests,httpFailures};
   fs.writeFileSync(path.join(out,"browser.json"),JSON.stringify(metadata,null,2));
   fs.writeFileSync(path.join(out,"browser.log"),checks.join("\n")+"\n");

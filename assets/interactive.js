@@ -1,8 +1,9 @@
 (() => {
   "use strict";
+  const {t} = window.WorldDraftI18n;
   const M=window.LexMetrics, D=window.LEXDATA, B=window.LEXBLOCK;
   const $=s=>document.querySelector(s);
-  const node=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;};
+  const node=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=t(text);return e;};
   const names={en:"English",de:"German",fr:"French",es:"Spanish",ru:"Russian",zh:"Chinese",ja:"Japanese",ko:"Korean",ar:"Arabic",th:"Thai",sw:"Swahili",hi:"Hindi",bn:"Bengali",te:"Telugu",am:"Amharic","sr-Cyrl":"Serbian (Cyrillic)","sr-Latn":"Serbian (Latin)","hi-Latn":"Hindi (Latin)"};
   const meta={
     dpub:{name:"Original DFlash",note:"No extra multilingual training",tone:"base"},
@@ -18,11 +19,11 @@
   }
   function stopRace(){
     if(frame!==null)cancelAnimationFrame(frame);frame=null;
-    $("#race-start").textContent=reduced.matches?"Start at zero":"Play all four";
+    $("#race-start").textContent=t(reduced.matches?"Start at zero":"Play all four");
     $("#race-start").setAttribute("aria-pressed","false");
   }
-  function renderTime(t){
-    const state=M.raceSnapshot(row,t);time=state.time;
+  function renderTime(elapsed){
+    const state=M.raceSnapshot(row,elapsed);time=state.time;
     $("#race-time").value=String(time);
     $("#race-time-value").textContent=time.toFixed(1);
     for(const lane of state.lanes){
@@ -30,7 +31,7 @@
       refs.fill.style.transform="scaleX("+lane.progress+")";
       refs.percent.textContent=(lane.progress*100).toFixed(1)+"%";
       refs.progress.setAttribute("aria-valuenow",(lane.progress*100).toFixed(1));
-      refs.state.textContent=lane.done?"Finished":time===0?"Ready":"Working";
+      refs.state.textContent=t(lane.done?"Finished":time===0?"Ready":"Working");
       refs.root.classList.toggle("done",lane.done);
       const count=Math.floor(lane.progress*32+1e-8);
       refs.tiles.forEach((tile,i)=>tile.classList.toggle("complete",i<count));
@@ -38,14 +39,14 @@
     const done=state.lanes.filter(l=>l.done), combined=state.lanes[3],baseline=state.lanes[0];
     let message;
     if(done.length===4)message="All four finish the same amount of work. Compare their finish times; the extra time used by the slower systems stays visible.";
-    else if(combined.done)message="The combined system has finished. Original DFlash is "+(baseline.progress*100).toFixed(1)+"% complete at this same moment.";
-    else if(done.length)message=done.map(l=>meta[l.key].name).join(" and ")+" finished first in this setting. The other systems are still working.";
+    else if(combined.done)message=t("The combined system has finished. Original DFlash is {0}% complete at this same moment.",(baseline.progress*100).toFixed(1));
+    else if(done.length)message=t("{0} finished first in this setting. The other systems are still working.",new Intl.ListFormat(window.WorldDraftI18n.locale).format(done.map(l=>t(meta[l.key].name))));
     else if(time===0)message="All four start together. Play, drag the time slider, or jump directly to a finish.";
-    else message="One shared clock. The four lanes have completed "+state.lanes.map(l=>(l.progress*100).toFixed(0)+"%").join(", ")+" of the same work.";
-    $("#race-insight").textContent=message;
+    else message=t("One shared clock. The four lanes have completed {0} of the same work.",state.lanes.map(l=>(l.progress*100).toFixed(0)+"%").join(", "));
+    $("#race-insight").textContent=t(message);
   }
-  function buildRace(){
-    stopRace();
+  function buildRace(preserveTime=false){
+    if (!preserveTime) stopRace();
     row=M.fourArmRows(D.speed,concurrency).find(r=>r.lang===lang);
     const host=$("#live-lanes");host.replaceChildren();laneNodes={};
     row.arms.forEach((arm,i)=>{
@@ -55,14 +56,14 @@
       const body=node("div","live-body");
       const header=node("div","live-readout"),percent=node("strong","","0.0%"),state=node("span","","Ready");
       header.append(percent,state);
-      const progress=node("div","work-progress");progress.setAttribute("role","progressbar");progress.setAttribute("aria-label",m.name+" illustrated work");progress.setAttribute("aria-valuemin","0");progress.setAttribute("aria-valuemax","100");
+      const progress=node("div","work-progress");progress.setAttribute("role","progressbar");progress.setAttribute("aria-label",t("{0} illustrated work",t(m.name)));progress.setAttribute("aria-valuemin","0");progress.setAttribute("aria-valuemax","100");
       const fill=node("div","work-fill "+m.tone);progress.append(fill);
       const tileRow=node("div","work-tiles");tileRow.setAttribute("aria-hidden","true");
       const tiles=Array.from({length:32},()=>{const tile=node("i");tileRow.append(tile);return tile;});
       body.append(header,progress,tileRow);
       const finish=node("button","finish-button");finish.type="button";
-      finish.setAttribute("aria-label","Jump to "+m.name+" finish");
-      finish.append(node("strong","",(100/arm.ratio).toFixed(1)),node("span","",arm.ratio.toFixed(2)+"× throughput"));
+      finish.setAttribute("aria-label",t("Jump to {0} finish",t(m.name)));
+      finish.append(node("strong","",(100/arm.ratio).toFixed(1)),node("span","",t("{0}× throughput",arm.ratio.toFixed(2))));
       finish.addEventListener("click",()=>{stopRace();renderTime(100/arm.ratio);});
       root.append(label,body,finish);host.append(root);
       laneNodes[arm.key]={root,fill,progress,percent,state,tiles};
@@ -71,7 +72,7 @@
     for(const [title,value] of [["WorldDraft on original",M.formatGain(row.priorGain)],["WorldDraft on multilingual",M.formatGain(row.priorOnMultilingualGain)],["Combined vs original",row.arms[3].ratio.toFixed(2)+"×"]]){
       const box=node("p");box.append(node("span","",title),node("strong","",value));impact.append(box);
     }
-    renderTime(100/row.arms[3].ratio);
+    renderTime(preserveTime?time:100/row.arms[3].ratio);
   }
   function tick(now){
     renderTime(startTime+(now-startAt)/8000*M.RACE_END);
@@ -83,7 +84,7 @@
     renderTime(0);
     if(reduced.matches)return;
     startAt=performance.now();startTime=0;
-    $("#race-start").textContent="Pause";
+    $("#race-start").textContent=t("Pause");
     $("#race-start").setAttribute("aria-pressed","true");
     frame=requestAnimationFrame(tick);
   });
@@ -98,18 +99,18 @@
 
   // Actual proposal snapshots from trace_te.json, at a shared committed prefix.
   let blockIndex=6,phase=2,selected=1,blockTimer=null;
-  B.rounds.forEach((r,i)=>{const opt=node("option","","Prefix "+(i+1)+" · "+r.accepted_plain+" vs "+r.accepted_lex+" accepted");opt.value=i;$("#block-round").append(opt);});
+  B.rounds.forEach((r,i)=>{const opt=node("option","",t("Prefix {0} · {1} vs {2} accepted",i+1,r.accepted_plain,r.accepted_lex));opt.value=i;$("#block-round").append(opt);});
   $("#block-round").value=String(blockIndex);
-  function stopBlock(){clearInterval(blockTimer);blockTimer=null;$("#block-play").textContent=reduced.matches?"Start at draft":"Replay block";}
+  function stopBlock(){clearInterval(blockTimer);blockTimer=null;$("#block-play").textContent=t(reduced.matches?"Start at draft":"Replay block");}
   function tokenName(round,id){
-    for(const position of round.positions)for(const entry of [...position.top,...position.lex])if(entry.t===id)return entry.v ? entry.p : "byte fragment "+entry.p;
-    return "token "+id;
+    for(const position of round.positions)for(const entry of [...position.top,...position.lex])if(entry.t===id)return entry.v ? entry.p : t("byte fragment {0}",entry.p);
+    return t("token {0}",id);
   }
   function renderInspector(){
     const r=B.rounds[blockIndex],host=$("#piece-inspector");host.replaceChildren();
-    host.append(node("strong","","Position "+(selected+1)));
-    host.append(node("span","","DFlash: "+tokenName(r,r.plain_pick[selected])));
-    host.append(node("span","","After WorldDraft: "+tokenName(r,r.lex_pick[selected])));
+    host.append(node("strong","",t("Position {0}",selected+1)));
+    host.append(node("span","",t("DFlash: {0}",tokenName(r,r.plain_pick[selected]))));
+    host.append(node("span","",t("After WorldDraft: {0}",tokenName(r,r.lex_pick[selected]))));
     const changed=r.plain_pick[selected]!==r.lex_pick[selected];
     host.append(node("span","",changed?"WorldDraft changed this proposal.":"Both propose the same token here."));
   }
@@ -118,13 +119,13 @@
     for(const button of document.querySelectorAll(".block-steps button"))button.setAttribute("aria-pressed",String(Number(button.dataset.phase)===phase));
     for(const [key,title,accepted] of [["plain","DFlash proposal",r.accepted_plain],["lex","After WorldDraft",r.accepted_lex]]){
       const line=node("div","block-row "+key);
-      const label=node("div","block-row-label");label.append(node("strong","",title),node("span","",phase===2?accepted+" accepted":phase===0?"Neural proposals":"Before target verification"));
+      const label=node("div","block-row-label");label.append(node("strong","",title),node("span","",phase===2?t("{0} accepted",accepted):phase===0?"Neural proposals":"Before target verification"));
       const pieces=node("div","block-pieces");
       for(const p of snapshot[key]){
         const cell=node("button","block-cell "+p.state+(p.changed?" changed":"")+(selected===p.index?" selected":""));
         cell.type="button";cell.dataset.position=p.index;cell.dataset.state=p.state;
         cell.setAttribute("aria-pressed",String(selected===p.index));
-        cell.setAttribute("aria-label",title+", position "+(p.index+1)+", "+p.state+(p.changed?", changed by prior":""));
+        cell.setAttribute("aria-label",t("{0}, position {1}, {2}{3}",t(title),p.index+1,t(p.state),p.changed?t(", changed by prior"):""));
         cell.append(node("span","cell-index",String(p.index+1)),node("span","cell-state",p.state==="accepted"?"✓":p.state==="rejected"?"×":p.state==="discarded"?"·":p.changed?"↺":"?"));
         cell.addEventListener("click",()=>{selected=p.index;renderBlock();});
         pieces.append(cell);
@@ -133,12 +134,12 @@
     }
     let message;
     if(phase===0)message="One neural pass proposes every position. The second row is the same proposal before WorldDraft is applied.";
-    else if(phase===1)message="The prior changes "+snapshot.lex.filter(p=>p.changed).length+" proposals at this prefix. An outline marks a changed candidate; target acceptance is not shown yet.";
+    else if(phase===1)message=t("The prior changes {0} proposals at this prefix. An outline marks a changed candidate; target acceptance is not shown yet.",snapshot.lex.filter(p=>p.changed).length);
     else {
       const delta=r.accepted_lex-r.accepted_plain;
-      message=delta>0?"The first mismatch moves later: "+r.accepted_plain+" accepted without WorldDraft, "+r.accepted_lex+" with it. "+delta+" extra draft tokens survive this check.":delta===0?"Both accept "+r.accepted_plain+" draft tokens at this prefix. Changing candidates does not guarantee a gain every round.":"This recorded prefix accepts fewer proposals with WorldDraft. Local results are not forced to improve.";
+      message=delta>0?t("The first mismatch moves later: {0} accepted without WorldDraft, {1} with it. {2} extra draft tokens survive this check.",r.accepted_plain,r.accepted_lex,delta):delta===0?t("Both accept {0} draft tokens at this prefix. Changing candidates does not guarantee a gain every round.",r.accepted_plain):"This recorded prefix accepts fewer proposals with WorldDraft. Local results are not forced to improve.";
     }
-    $("#block-verdict").textContent=message;renderInspector();
+    $("#block-verdict").textContent=t(message);renderInspector();
   }
   $(".block-steps").addEventListener("click",e=>{const b=e.target.closest("button");if(b){stopBlock();phase=Number(b.dataset.phase);renderBlock();}});
   $("#block-round").addEventListener("change",e=>{stopBlock();blockIndex=Number(e.target.value);selected=1;phase=2;renderBlock();});
@@ -146,11 +147,21 @@
     if(blockTimer!==null){stopBlock();return;}
     phase=0;renderBlock();
     if(reduced.matches)return;
-    $("#block-play").textContent="Pause";
+    $("#block-play").textContent=t("Pause");
     blockTimer=setInterval(()=>{phase++;renderBlock();if(phase===2)stopBlock();},1100);
   });
   renderBlock();stopBlock();
   reduced.addEventListener("change",()=>{stopRace();stopBlock();});
   document.addEventListener("visibilitychange",()=>{if(document.hidden){stopRace();stopBlock();}});
+  document.addEventListener("worlddraft-locale",()=>{
+    for(const option of $("#race-language").options) option.textContent=t(names[option.value]);
+    for(const [i,option] of Array.from($("#block-round").options).entries()){
+      const r=B.rounds[i];
+      option.textContent=t("Prefix {0} · {1} vs {2} accepted",i+1,r.accepted_plain,r.accepted_lex);
+    }
+    buildRace(true);renderBlock();
+    $("#race-start").textContent=t(frame!==null?"Pause":reduced.matches?"Start at zero":"Play all four");
+    $("#block-play").textContent=t(blockTimer!==null?"Pause":reduced.matches?"Start at draft":"Replay block");
+  });
   document.documentElement.dataset.interactiveReady="true";
 })();

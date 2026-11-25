@@ -1,0 +1,37 @@
+.site-language {display:flex;align-items:center;gap:4px;color:var(--foreground);}
+.site-language svg {width:16px;height:16px;flex:none;}
+.site-language select {max-width:10rem;min-height:34px;font:inherit;font-size:13px;color:inherit;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 4px;}
+#locale-status:empty {display:none;}
+#locale-status:not(:empty) {position:absolute;top:100%;inset-inline-end:0;background:var(--surface);color:var(--foreground);padding:6px 12px;}
+html:not([lang="en"]) .research-intro h1 {max-width:32ch;}
+html:not([lang="en"]) .nav-row nav {gap:15px;}
+html:not([lang="en"]) .atlas-speeds th {white-space:normal;}
+html:not([lang="en"]) .finish-button span {white-space:normal;}
+html:not([lang="en"]) .draft-diagrams svg text {font-size:12px;}
+@media(max-width:750px){
+ .nav-row {flex-wrap:wrap;gap:3px 10px;height:auto;min-height:62px;padding-block:6px;}
+ .site-language {margin-inline-start:auto;}
+ .nav-row nav {order:4;width:100%;justify-content:center;margin:0;gap:16px;}
+ .nav-row nav a:first-child {display:inline;}
+ .site-language select {max-width:8rem;}
+}
+@media(max-width:390px){.site-language svg {display:none;}.nav-row .brand-lockup {width:102px;}}
+.block-controls label,.lab-controls label {min-width:0;max-width:100%;}
+.block-controls select,.lab-controls select {min-width:0;max-width:100%;}
+@media(max-width:540px){
+ .nav-row {display:grid;grid-template-columns:minmax(58px,1fr) minmax(75px,auto) auto;gap:3px 6px;}
+ .nav-row .brand-lockup {width:min(105px,100%);}
+ .nav-row .site-language {margin:0;justify-self:end;min-width:0;}
+ .nav-row .site-language select {width:clamp(78px,27vw,115px);}
+ .nav-row nav {grid-row:2;grid-column:1/-1;}
+ .block-controls label {width:100%;}
+ .block-controls select {width:100%;}
+}
+html[dir="rtl"] nav {margin-left:0;margin-inline-start:auto;}
+html[dir="rtl"] :is(.atlas-readout,.atlas-speeds caption,.atlas-speeds th,.draft-diagrams,.lab-controls,.block-row-label,.properties,.paper-info) {text-align:start;}
+html[dir="rtl"] .atlas-readout {border-left:0;border-inline-start:1px solid var(--border);}
+html[dir="rtl"] :is(#atlas-svg,.survey-strip svg,.draft-diagrams svg,#trace-chart,.result-row .bar-track,.live-body,.time-ticks,.block-pieces,.word-pieces,.progress,#bib,code,.bar-track,input[type="range"]) {direction:ltr;}
+html[dir="rtl"] :is(.atlas-speeds td,.bar-value,.combined-result,.prior-gain,.trained-prior-gain,.survey-metric strong,.piece-inspector span) {unicode-bidi:plaintext;}
+html[dir="rtl"] .brand-lockup {background-position:right center;}
+html[dir="rtl"] .research-byline,html[dir="rtl"] .authors {direction:ltr;}
+@media(max-width:700px){html[dir="rtl"] .atlas-readout {border-inline-start:0;}}

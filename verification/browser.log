@@ -27,3 +27,4 @@ PASS all internal anchors and local downloads resolve
 PASS browser console errors: 0; transport failures: 0; HTTP errors: 0; paper images: 0
 PASS offline file:// load: data, styles and scripts available without server
 PASS public atlas deep links initialize and switch evidence layers
+PASS 18 site locales: default, persistence, link override, RTL, four viewport widths and interaction state

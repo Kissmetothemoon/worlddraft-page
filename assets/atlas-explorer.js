@@ -1,5 +1,6 @@
 (() => {
   "use strict";
+  const {t} = window.WorldDraftI18n;
   const geo = window.WorldDraftGeography;
   const get = id => document.getElementById(id);
   const canvas = get("atlas-svg");
@@ -35,7 +36,7 @@
   }
   function button(label, action) {
     const b=document.createElement("button");
-    b.type="button"; b.textContent=label; b.addEventListener("click",action);
+    b.type="button"; b.textContent=t(label); b.addEventListener("click",action);
     return b;
   }
   function mark(point, name) {
@@ -61,13 +62,13 @@
     mark(record.point,record.name);
     get("catalogue-name").textContent=record.name;
     const regions=geo.regions.filter((_,i)=>record.mask&(1<<i));
-    get("catalogue-place").textContent=[regions.join(" / ")||"Region unassigned",record.iso.toUpperCase(),record.point?"":"No mapped coordinates"].filter(Boolean).join(" · ");
+    get("catalogue-place").textContent=[regions.map(r=>t(r)).join(" / ")||t("Region unassigned"),record.iso.toUpperCase(),record.point?"":t("No mapped coordinates")].filter(Boolean).join(" · ");
     const survey=sampleByEntry.get(record.id), speed=geo.studyIds[record.id];
     const evidence=get("catalogue-evidence");
-    evidence.textContent=speed?"A decoding benchmark is linked to this catalogue entry.":"No decoding speed measurement in this study.";
+    evidence.textContent=t(speed?"A decoding benchmark is linked to this catalogue entry.":"No decoding speed measurement in this study.");
     if (speed) offerJump("See speedups","speed",speed==="sr"?"sr-Cyrl":speed);
     if (survey) offerJump("See tokenization","tokens",survey[0][0]);
-    else if (!speed) evidence.append(" No FLORES-200 sample is linked to this catalogue entry.");
+    else if (!speed) evidence.append(" "+t("No FLORES-200 sample is linked to this catalogue entry."));
     get("catalogue-source").href="https://glottolog.org/resource/languoid/id/"+record.id;
   }
   function suggestions(){
@@ -82,12 +83,12 @@
     }
     const box=get("language-hits");
     box.replaceChildren(...hits.map(r=>button(r.name,()=>showPlace(r))));
-    if(!hits.length) box.textContent="No matches in this region.";
+    if(!hits.length) box.textContent=t("No matches in this region.");
   }
   function selectRegion(index) {
     region=index;
     query.value="";
-    query.setAttribute("aria-label",region<0?"Find a language in the entire catalogue":"Find a language in "+geo.regions[region]);
+    query.setAttribute("aria-label",region<0?t("Find a language in the entire catalogue"):t("Find a language in {0}",t(geo.regions[region])));
     worldPaths.forEach((p,i)=>p.classList.toggle("dimmed",region>=0 && i!==region));
     regionButtons.forEach((b,i)=>b.setAttribute("aria-pressed",String(i-1===region)));
     suggestions();
@@ -119,7 +120,11 @@
 
   const selectSurvey=get("survey-condition");
   const scripts=new Intl.DisplayNames(["en"],{type:"script"});
-  const optionLabel=row=>row[1]+" · "+scripts.of(row[0].split("_")[1]);
+  const sampleName=row=>window.WorldDraftI18n.name(row[0].split("_")[0],row[1]);
+  const optionLabel=row=>{
+    const script=row[0].split("_")[1];
+    return sampleName(row)+" · "+window.WorldDraftI18n.name(script,scripts.of(script),"script");
+  };
   for(const row of [...geo.survey].sort((a,b)=>optionLabel(a).localeCompare(optionLabel(b),"en")))
     selectSurvey.add(new Option(optionLabel(row),row[0]));
   const isoPins=new Map();
@@ -151,10 +156,10 @@
     surveyCode=code; selectSurvey.value=code;
     const [,name,value,point]=sampleByCode.get(code);
     get("survey-tpw").textContent=value.toFixed(2);
-    get("survey-comparison").textContent=(value/english).toFixed(2)+"× the English rate ("+english.toFixed(2)+" tokens per word)."+(point?"":" No exact ISO match with coordinates on this map.");
+    get("survey-comparison").textContent=t("{0}× the English rate ({1} tokens per word).",(value/english).toFixed(2),english.toFixed(2))+(point?"":" "+t("No exact ISO match with coordinates on this map."));
     indicator.setAttribute("x1",plotX(value));indicator.setAttribute("x2",plotX(value));
-    plot.setAttribute("aria-label","Histogram of 204 samples on a log scale. The selected sample, "+name+", uses "+value.toFixed(2)+" tokens per word.");
-    mark(point,name);
+    plot.setAttribute("aria-label",t("Histogram of 204 samples on a log scale. The selected sample, {0}, uses {1} tokens per word.",sampleName(sampleByCode.get(code)),value.toFixed(2)));
+    mark(point,sampleName(sampleByCode.get(code)));
   }
   selectSurvey.addEventListener("change",()=>showSample(selectSurvey.value));
   const captions={
@@ -168,10 +173,11 @@
     speed:"At 32 concurrent requests, public DFlash reached 1.66× in English and 0.72× in Telugu. It slowed decoding in 7 of 16 languages (9 of 18 conditions). After multilingual training, Korean, Latin-script Hindi and Latin-script Serbian still ran slower than direct decoding. The AR drafter sped up all 18 conditions."
   };
   function worldFinding(){
-    if(region<0) return findings.world;
+    if(region<0) return t(findings.world);
     const members=places.filter(activeRegion);
     const linkedSpeed=members.filter(r=>geo.studyIds[r.id]).length;
     const linkedSurvey=members.filter(r=>sampleByEntry.has(r.id)).length;
+    if(window.WorldDraftI18n.locale!=="en") return t("{0} has {1} catalogue entries. Linked decoding benchmarks: {2}. Linked FLORES-200 tokenizer samples: {3}.",t(geo.regions[region]),humanCount(members.length),linkedSpeed,linkedSurvey);
     return geo.regions[region]+" has "+humanCount(members.length)+" catalogue entries. "+
       (linkedSpeed===0?"None have":linkedSpeed===1?"One has":linkedSpeed+" have")+
       " a linked decoding benchmark. "+(linkedSurvey===0?"None have":linkedSurvey===1?"One has":linkedSurvey+" have")+
@@ -185,8 +191,8 @@
     for(const [id,on] of [["atlas-markers","speed"],["atlas-label","speed"],["survey-markers","tokens"],["catalogue-regions","world"]])
       get(id).style.display=mode===on?"":"none";
     get("atlas-locations").style.display=mode==="world"?"none":"";
-    get("atlas-caption").textContent=captions[mode];get("atlas-finding").textContent=mode==="world"?worldFinding():findings[mode];
-    canvas.setAttribute("aria-label","Language atlas. "+captions[mode]);
+    get("atlas-caption").textContent=t(captions[mode]);get("atlas-finding").textContent=mode==="world"?worldFinding():t(findings[mode]);
+    canvas.setAttribute("aria-label",t("Language atlas. {0}",t(captions[mode])));
     highlight.replaceChildren();
     if(mode==="world") showPlace(activePlace);
     if(mode==="tokens") showSample(surveyCode);
@@ -203,5 +209,20 @@
   }
   modes.forEach(b=>b.addEventListener("click",()=>activateMode(b.dataset.mode)));
   window.addEventListener("hashchange",modeFromLink);
+  document.addEventListener("worlddraft-locale",()=>{
+    reset.textContent=t("All regions");
+    for(const [i,r] of geo.regions.entries()){
+      const count=places.filter(p=>p.mask&(1<<i)).length;
+      regionButtons[i+1].textContent=t(r)+" "+humanCount(count);
+    }
+    query.setAttribute("aria-label",region<0?t("Find a language in the entire catalogue"):t("Find a language in {0}",t(geo.regions[region])));
+    for(const opt of selectSurvey.options) opt.textContent=optionLabel(sampleByCode.get(opt.value));
+    for(const [iso,pin] of isoPins){
+      const row=geo.survey.find(r=>r[0].startsWith(iso+"_"));
+      pin.setAttribute("aria-label",t("{0}, tokenizer measurement",sampleName(row)));
+      pin.querySelector("title").textContent=sampleName(row);
+    }
+    suggestions();setMode(mode);
+  });
   selectRegion(-1);setMode("world");modeFromLink();
 })();

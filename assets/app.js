@@ -1,11 +1,12 @@
 (() => {
   "use strict";
+  const {t} = window.WorldDraftI18n;
   const D = window.LEXDATA, M = window.LexMetrics;
   const $ = selector => document.querySelector(selector);
   const el = (tag, cls, text) => {
     const node = document.createElement(tag);
     if (cls) node.className = cls;
-    if (text !== undefined) node.textContent = text;
+    if (text !== undefined) node.textContent = t(text);
     return node;
   };
   const names = {en:"English",de:"German",fr:"French",es:"Spanish",ru:"Russian",zh:"Chinese",ja:"Japanese",ko:"Korean",ar:"Arabic",th:"Thai",sw:"Swahili",hi:"Hindi",bn:"Bengali",te:"Telugu",am:"Amharic","sr-Cyrl":"Serbian (Cyrillic)","sr-Latn":"Serbian (Latin)","hi-Latn":"Hindi (Latin)"};
@@ -15,8 +16,8 @@
   try { userTheme = localStorage.getItem("worlddraft-theme"); } catch { /* Storage is optional. */ }
   const setTheme = theme => {
     document.documentElement.dataset.theme = theme;
-    $("#theme-toggle").textContent = theme === "dark" ? "Light" : "Dark";
-    $("#theme-toggle").setAttribute("aria-label", "Switch to " + (theme === "dark" ? "light" : "dark") + " theme");
+    $("#theme-toggle").textContent = t(theme === "dark" ? "Light" : "Dark");
+    $("#theme-toggle").setAttribute("aria-label", t(theme === "dark" ? "Switch to light theme" : "Switch to dark theme"));
   };
   setTheme(userTheme === "light" || userTheme === "dark" ? userTheme : mode.matches ? "dark" : "light");
   $("#theme-toggle").addEventListener("click", () => {
@@ -38,7 +39,7 @@
     for(const arm of row.arms) {
       const meta=ARM_META[arm.key];
       const line=el("div","bar-row"); line.dataset.arm=arm.key;
-      line.setAttribute("aria-label",meta.label+": "+arm.ratio.toFixed(2)+" times original DFlash");
+      line.setAttribute("aria-label",t("{0}: {1} times original DFlash",t(meta.label),arm.ratio.toFixed(2)));
       const track=el("div","bar-track"),bar=el("div","bar "+meta.tone),reference=el("i","reference-mark");
       bar.style.transform="scaleX("+(arm.ratio/M.FOUR_ARM_MAX)+")";
       reference.style.left=(1/M.FOUR_ARM_MAX*100)+"%";
@@ -56,10 +57,10 @@
       item.dataset.lang=lang;
       const label=el("div","feature-label");
       label.append(el("strong","",names[lang]),
-        el("span","combined-gain",row.arms[3].ratio.toFixed(2)+"× combined"));
+        el("span","combined-gain",t("{0}× combined",row.arms[3].ratio.toFixed(2))));
       const gains=el("div","paired-gains");
-      gains.append(el("span","prior-gain",M.formatGain(row.priorGain)+" on original"),
-        el("span","trained-prior-gain",M.formatGain(row.priorOnMultilingualGain)+" on multilingual"));
+      gains.append(el("span","prior-gain",t("{0} on original",M.formatGain(row.priorGain))),
+        el("span","trained-prior-gain",t("{0} on multilingual",M.formatGain(row.priorOnMultilingualGain))));
       item.append(label,fourBars(row),gains);host.append(item);
     }
   }
@@ -80,7 +81,7 @@
   const svg = (tag,attrs,text) => {
     const n = document.createElementNS(svgNS,tag);
     for (const [k,v] of Object.entries(attrs||{})) n.setAttribute(k,String(v));
-    if (text!==undefined) n.textContent=text;
+    if (text!==undefined) n.textContent=t(text);
     return n;
   };
   const chartX = r => 38 + r/lastRound*324;
@@ -105,31 +106,31 @@
     baseDot=svg("circle",{r:4,class:"trace-dot base"});
     lexDot=svg("circle",{r:4,class:"trace-dot lex"});
     chart.append(cursor,baseDot,lexDot);
-    $("#trace-chart").append(chart);
+    $("#trace-chart").replaceChildren(chart);
   }
   function renderRound(value) {
     const state=M.snapshot(trace,value); round=state.step;
     for (const key of ["base","lex"]) {
       const lane=state[key];
-      $("#"+key+"-tokens").textContent=lane.tokens+" / "+goal+" tokens";
+      $("#"+key+"-tokens").textContent=t("{0} / {1} tokens",lane.tokens,goal);
       $("#"+key+"-fill").style.transform="scaleX("+lane.fraction+")";
       $("#"+key+"-progress").setAttribute("aria-valuenow",lane.tokens);
-      $("#"+key+"-rounds").textContent=lane.rounds+" rounds used";
-      $("#"+key+"-status").textContent=lane.done?"Finished":round===0?"Ready":"Still decoding";
+      $("#"+key+"-rounds").textContent=t("{0} rounds used",lane.rounds);
+      $("#"+key+"-status").textContent=t(lane.done?"Finished":round===0?"Ready":"Still decoding");
     }
     $("#round-slider").value=round;
     $("#round-output").textContent=round;
     $("#next-round").disabled=round>=lastRound;
     let message;
     if (state.base.done && state.lex.done) message="Same 512-token answer. WorldDraft used 160 rounds; the original drafter used 170.";
-    else if (state.lex.done) message="WorldDraft has finished. The original drafter still has "+(goal-state.base.tokens)+" tokens to go.";
+    else if (state.lex.done) message=t("WorldDraft has finished. The original drafter still has {0} tokens to go.",goal-state.base.tokens);
     else if (round===0) message="Same request, same target. Step through the measured decoding rounds.";
-    else if (state.base.tokens===state.lex.tokens) message="Both runs have committed "+state.base.tokens+" tokens so far. The full-run outcome remains visible above.";
+    else if (state.base.tokens===state.lex.tokens) message=t("Both runs have committed {0} tokens so far. The full-run outcome remains visible above.",state.base.tokens);
     else {
       const delta=state.lex.tokens-state.base.tokens;
-      message=delta>0 ? "After "+round+" rounds, WorldDraft has committed "+delta+" more tokens." : "At this round the original drafter is ahead by "+Math.abs(delta)+" tokens. Local leads can change.";
+      message=delta>0 ? t("After {0} rounds, WorldDraft has committed {1} more tokens.",round,delta) : t("At this round the original drafter is ahead by {0} tokens. Local leads can change.",Math.abs(delta));
     }
-    $("#trace-message").textContent=message;
+    $("#trace-message").textContent=t(message);
     cursor.setAttribute("x1",chartX(round)); cursor.setAttribute("x2",chartX(round));
     for (const [dot,lane] of [[baseDot,state.base],[lexDot,state.lex]]) {
       dot.setAttribute("cx",chartX(lane.rounds)); dot.setAttribute("cy",chartY(lane.tokens));
@@ -138,14 +139,14 @@
   function pause() {
     if (timer!==null) clearInterval(timer);
     timer=null;
-    $("#replay").textContent=reduced.matches?"Restart":"Replay";
+    $("#replay").textContent=t(reduced.matches?"Restart":"Replay");
     $("#replay").setAttribute("aria-pressed","false");
   }
   $("#replay").addEventListener("click",()=>{
     if(timer!==null){pause();return;}
     renderRound(0);
     if(reduced.matches) return;
-    $("#replay").textContent="Pause";
+    $("#replay").textContent=t("Pause");
     $("#replay").setAttribute("aria-pressed","true");
     timer=setInterval(()=>{
       renderRound(round+1);
@@ -168,10 +169,10 @@
       const item=el("div","result-row");item.dataset.lang=row.lang;
       const head=el("div","result-header");
       head.append(el("span","result-name",names[row.lang]),
-        el("span","combined-result",M.formatGain(row.combinedGain)+" combined"));
+        el("span","combined-result",t("{0} combined",M.formatGain(row.combinedGain))));
       const paired=el("div","paired-gains");
-      paired.append(el("span","prior-gain",M.formatGain(row.priorGain)+" on original"),
-        el("span","trained-prior-gain",M.formatGain(row.priorOnMultilingualGain)+" on multilingual"));
+      paired.append(el("span","prior-gain",t("{0} on original",M.formatGain(row.priorGain))),
+        el("span","trained-prior-gain",t("{0} on multilingual",M.formatGain(row.priorOnMultilingualGain))));
       item.append(head,fourBars(row),paired);host.append(item);
     }
     renderEngine();
@@ -186,7 +187,7 @@
   }
   function renderEngine() {
     const table=$("#engine-table");
-    const body=tableHead(table,"Concurrency "+concurrency+" · speedup (mean committed tokens per round)",["Language","Target tok/s","AR drafter","EAGLE-3","Original DFlash","DFlash + WorldDraft","ML training only","ML + WorldDraft","Prior on original","Prior on ML"]);
+    const body=tableHead(table,t("Concurrency {0} · speedup (mean committed tokens per round)",concurrency),["Language","Target tok/s","AR drafter","EAGLE-3","Original DFlash","DFlash + WorldDraft","ML training only","ML + WorldDraft","Prior on original","Prior on ML"]);
     for(const row of D.speed.speed[concurrency]){
       const tr=el("tr");tr.append(el("td","",names[row.lang]),el("td","",String(row.ar_tok_s)));
       for(const key of ["ar_draft","eagle3","dpub","dpub_lex","dml","dml_lex"]){
@@ -210,12 +211,21 @@
   $("#copy-bib").addEventListener("click",async()=>{
     try {
       await navigator.clipboard.writeText($("#bib").textContent);
-      $("#copy-status").textContent="BibTeX copied.";
+      $("#copy-status").textContent=t("BibTeX copied.");
     } catch {
       const range=document.createRange();range.selectNodeContents($("#bib"));
       const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);
-      $("#copy-status").textContent="Citation selected. Use your browser’s Copy command.";
+      $("#copy-status").textContent=t("Citation selected. Use your browser’s Copy command.");
     }
+  });
+  document.addEventListener("worlddraft-locale",()=>{
+    setTheme(document.documentElement.dataset.theme);
+    renderHero();renderResults();renderLoop();drawTraceChart();renderRound(round);
+    $("#replay").textContent=t(timer!==null?"Pause":reduced.matches?"Restart":"Replay");
+    $("#saved-rounds").textContent=t("{0} fewer rounds",trace.base.accs.length-finishRound);
+    $("#saved-percent").textContent=t("{0}% reduction on this request",((1-finishRound/trace.base.accs.length)*100).toFixed(1));
+    $("#identity").textContent=t("✓ Final output verified: all {0} token IDs match",goal);
+    $("#copy-status").textContent="";
   });
   document.documentElement.dataset.ready="true";
 })();

@@ -1,5 +1,6 @@
 (() => {
   "use strict";
+  const {t} = window.WorldDraftI18n;
   const geo = window.WorldDraftGeography;
   const rows = window.LEXDATA.speed.speed["32"];
   const byCode = new Map(rows.map(row => [row.lang, row]));
@@ -13,7 +14,7 @@
   const markerLayer = document.getElementById("atlas-markers");
   const labelLayer = document.getElementById("atlas-label");
   const baseCode = code => code.split("-")[0];
-  const label = code => langs[baseCode(code)] + (scripts[code] ? " · " + scripts[code] : "");
+  const label = code => t(langs[baseCode(code)]) + (scripts[code] ? " · " + t(scripts[code]) : "");
   const variants = new Map();
   const pins = new Map();
   const svg = (tag, attrs) => {
@@ -37,7 +38,7 @@
     const row = byCode.get(code), key = baseCode(code);
     select.value = code;
     document.getElementById("atlas-fertility").textContent =
-      geo.fertility[code].toFixed(2) + " tokens per word · Qwen3-8B";
+      t("{0} tokens per word · Qwen3-8B",geo.fertility[code].toFixed(2));
     for (const [id, method] of [["public","dpub"],["trained","dml"],["ar","ar_draft"]]) {
       const cell = document.getElementById("atlas-" + id);
       const val = row[method].speedup;
@@ -47,7 +48,7 @@
     for (const [k,pin] of pins) pin.setAttribute("aria-pressed", String(k === key));
     const [x, y] = geo.study[key];
     const text = svg("text", {x: x, y: y - 12.5, "text-anchor":"middle"});
-    text.textContent = langs[key];
+    text.textContent = t(langs[key]);
     labelLayer.replaceChildren(text);
   }
 
@@ -74,5 +75,15 @@
     pins.set(key,pin); markerLayer.append(pin);
   }
   select.addEventListener("change", () => show(select.value));
+  document.addEventListener("worlddraft-locale",()=>{
+    for(const o of select.options) o.textContent=label(o.value);
+    for(const [key,pin] of pins){
+      const codes=variants.get(key);
+      const slow=byCode.get(codes[0]).dpub.speedup<1;
+      pin.setAttribute("aria-label",t(slow?"{0}, slower than direct decoding":"{0}, faster than direct decoding",t(langs[key])));
+      pin.querySelector("title").textContent=codes.map(c=>label(c)+" "+byCode.get(c).dpub.speedup.toFixed(2)+"×").join(" / ");
+    }
+    show(select.value);
+  });
   show("te");
 })();
