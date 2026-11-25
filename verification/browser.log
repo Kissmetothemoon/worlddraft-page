@@ -1,4 +1,6 @@
 PASS initial load: four-lane interactive exhibit and recorded block inspector ready
+PASS global atlas: catalogue lookup, regional coverage, linked FLORES sample, 204 tokenizer values and unmapped entries
+PASS atlas: 16 markers, 18 conditions, 54 throughput ratios, script selection, pointer and keyboard; word pieces match the recorded prompt
 PASS default milestone: round 160, base 481/512, WorldDraft 512/512
 PASS optional measurement chart retains all four systems in fixed order
 PASS playback controls precede lanes; normalized-time tick 100 is positioned at 100/110
@@ -24,3 +26,4 @@ PASS manual dark/light theme switch and desktop/mobile captures
 PASS all internal anchors and local downloads resolve
 PASS browser console errors: 0; transport failures: 0; HTTP errors: 0; paper images: 0
 PASS offline file:// load: data, styles and scripts available without server
+PASS public atlas deep links initialize and switch evidence layers

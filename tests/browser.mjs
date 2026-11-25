@@ -55,6 +55,15 @@ async function viewport(width,height,mobile=false){
   await call("Emulation.setDeviceMetricsOverride",{width,height,deviceScaleFactor:1,mobile});
   await stable();
 }
+async function sectionShot(selector,name){
+  await stable();
+  const clip=await evaluate(`(() => {
+    const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();
+    return {x:r.x+scrollX-10,y:r.y+scrollY,width:r.width+20,height:r.height,scale:1};
+  })()`);
+  const image=await call("Page.captureScreenshot",{format:"png",captureBeyondViewport:true,clip});
+  fs.writeFileSync(path.join(out,name+".png"),Buffer.from(image.data,"base64"));
+}
 async function click(selector){await evaluate("document.querySelector("+JSON.stringify(selector)+").click()");}
 async function pointerClick(selector){
   await evaluate("document.querySelector("+JSON.stringify(selector)+").scrollIntoView({block:'center',behavior:'instant'})");
@@ -93,6 +102,70 @@ try{
   for(let i=0;i<100;i++){if(await evaluate("document.documentElement.dataset.interactiveReady === 'true'"))break;await wait(50);}
   assert.equal(await evaluate("document.documentElement.dataset.interactiveReady"),"true");
   log("PASS initial load: four-lane interactive exhibit and recorded block inspector ready");
+  assert.equal(await evaluate("document.querySelector('.atlas-figure').dataset.view"),"world");
+  assert.equal(await text("#catalogue-name"),"Huli");
+  assert.equal(await evaluate("WorldDraftGeography.entries.length-Object.keys(WorldDraftGeography.studyIds).length"),7669);
+  assert.match(await text("#atlas-regions"),/Papunesia 2,133/);
+  await click("#atlas-regions .area-5");
+  assert.equal(await text("#catalogue-name"),"Warlpiri");
+  assert.match(await text("#atlas-finding"),/Australia has 355 catalogue entries. None have a linked decoding benchmark/);
+  assert.equal(await evaluate("document.querySelectorAll('.region-points.dimmed').length"),5);
+  await click("#atlas-regions button:first-child");
+  async function findLanguage(name){
+    await evaluate(`(() => {const el=document.querySelector('#language-query');el.value=${JSON.stringify(name)};el.dispatchEvent(new Event('input'));})()`);
+    await click("#language-hits button");
+  }
+  await findLanguage("airm1242");
+  assert.match(await text("#catalogue-place"),/No mapped coordinates/);
+  await findLanguage("quy");
+  await click("#catalogue-evidence .condition-link");
+  assert.equal(await evaluate("document.querySelector('#survey-condition').value"),"quy_Latn");
+  const survey=JSON.parse(fs.readFileSync(path.join(root,"data/survey_summary.json"))).languages;
+  assert.equal(await evaluate("document.querySelector('#survey-condition').options.length"),204);
+  assert.equal(await evaluate("document.querySelectorAll('.survey-pin').length"),191);
+  for(const row of survey){
+    await select("#survey-condition",row.flores);
+    assert.equal(await text("#survey-tpw"),row.tokens_per_word.toFixed(2));
+  }
+  await select("#survey-condition","zho_Hant");
+  assert.match(await text("#survey-comparison"),/No exact ISO match/);
+  await select("#survey-condition","sat_Olck");
+  assert.match(await text("#survey-comparison"),/8.16×/);
+  log("PASS global atlas: catalogue lookup, regional coverage, linked FLORES sample, 204 tokenizer values and unmapped entries");
+  await sectionShot("#background","desktop-atlas-tokens");
+  await click("#atlas-decoding");
+  const speed=JSON.parse(fs.readFileSync(path.join(root,"data/speed.json"))).speed["32"];
+  const fertility=JSON.parse(fs.readFileSync(path.join(root,"data/languages.json")));
+  const slow=speed.filter(row=>row.dpub.speedup<1);
+  assert.deepEqual([slow.length,new Set(slow.map(row=>row.lang.split("-")[0])).size],[9,7]);
+  assert.equal(speed.filter(row=>row.dml.speedup<1).length,3);
+  assert.ok(speed.every(row=>row.ar_draft.speedup>1));
+  assert.deepEqual(await evaluate("[WorldDraftGeography.catalogue,WorldDraftGeography.dots.length,document.querySelectorAll('.atlas-pin').length,document.querySelectorAll('.atlas-pin.slower').length,document.querySelector('#atlas-condition').options.length]"),[7685,7683,16,7,18]);
+  for(const row of speed){
+    await select("#atlas-condition",row.lang);
+    for(const [key,id] of [["dpub","public"],["dml","trained"],["ar_draft","ar"]])
+      assert.equal(await text("#atlas-"+id),row[key].speedup.toFixed(2)+"×");
+    assert.equal(await text("#atlas-fertility"),fertility.find(r=>r.lang===row.lang).tw.toFixed(2)+" tokens per word · Qwen3-8B");
+    assert.equal(await evaluate("document.querySelector('.atlas-pin[aria-pressed=true]').dataset.lang"),row.lang.split("-")[0]);
+  }
+  await evaluate("document.querySelector('.atlas-pin[data-lang=en]').focus()");
+  await keyPress("Enter","Enter",13);
+  assert.equal(await text("#atlas-public"),"1.66×");
+  await pointerClick(".atlas-pin[data-lang=te] .pin-core");
+  assert.equal(await text("#atlas-public"),"0.72×");
+  const examples=JSON.parse(fs.readFileSync(path.join(root,"data/tok_examples.json")));
+  for(const lang of ["en","te"]){
+    const expected=examples[lang].groups[0].p.map(p=>p.t);
+    const pieces=await evaluate(`Array.from(document.querySelectorAll('#pieces-${lang} span'),s=>s.textContent.replaceAll(' ',''))`);
+    assert.deepEqual(pieces,expected);
+  }
+  log("PASS atlas: 16 markers, 18 conditions, 54 throughput ratios, script selection, pointer and keyboard; word pieces match the recorded prompt");
+  await evaluate("document.activeElement.blur()");
+  await sectionShot("#background","desktop-atlas-speed");
+  await click("#atlas-languages"); await click("#atlas-regions button:first-child");
+  await sectionShot("#background","desktop-atlas");
+  await sectionShot("#word-fragmentation","desktop-fragmentation");
+  await evaluate("window.scrollTo({top:0,behavior:'instant'});document.activeElement.blur()");
   assert.equal(await evaluate("document.querySelectorAll('.feature-item').length"),4);
   assert.equal(await text('#hero-bars [data-lang="te"] .prior-gain'),"+50.0% on original");
   assert.equal(await text('#hero-bars [data-lang="en"] .prior-gain'),"−0.4% on original");
@@ -222,6 +295,9 @@ try{
     if(width===390){await shot("mobile-hero");await shot("mobile-full",true);await evaluate("document.querySelector('#demo').scrollIntoView({behavior:'instant'})");await shot("mobile-demo");await evaluate("document.querySelector('#block-demo').scrollIntoView({behavior:'instant'})");await shot("mobile-comparison");}
   }
   await viewport(390,844,true);
+  await sectionShot("#background","mobile-atlas");
+  await click("#atlas-tokenization");await sectionShot("#background","mobile-atlas-tokens");await click("#atlas-languages");
+  await sectionShot("#word-fragmentation","mobile-fragmentation");
   await pointerClick("#race-restart");assert.equal(await text("#race-time-value"),"0.0");
   await pointerClick("#race-time");const timeBefore=Number(await text("#race-time-value"));await keyPress("ArrowRight","ArrowRight",39);
   assert.ok(Number(await text("#race-time-value"))>=timeBefore);
@@ -268,6 +344,7 @@ try{
   await viewport(1440,1000);await evaluate("window.scrollTo({top:0,behavior:'instant'})");
   await click("#theme-toggle");assert.equal(await evaluate("document.documentElement.dataset.theme"),"dark");
   await shot("desktop-dark");
+  await sectionShot("#background","dark-atlas");
   await viewport(390,844,true);await shot("mobile-dark");
   await click("#theme-toggle");
   log("PASS manual dark/light theme switch and desktop/mobile captures");
@@ -285,10 +362,19 @@ try{
   await call("Page.navigate",{url:pathToFileURL(path.join(root,"index.html")).href});
   for(let i=0;i<100;i++){if(await evaluate("location.protocol==='file:' && document.documentElement.dataset.interactiveReady==='true'"))break;await wait(50);}
   assert.equal(await evaluate("location.protocol"),"file:");
+  assert.equal(await evaluate("document.querySelectorAll('.atlas-pin').length"),16);
+  assert.equal(await text("#atlas-public"),"0.72×");
   assert.equal(await evaluate("document.documentElement.dataset.ready"),"true");
   assert.equal(await text('#hero-bars [data-lang="te"] .prior-gain'),"+50.0% on original");
   assert.equal(errors.length,0);assert.equal(failedRequests.length,0);
   log("PASS offline file:// load: data, styles and scripts available without server");
+  await call("Page.navigate",{url:url+"#atlas-tokenization"});
+  for(let i=0;i<100;i++){if(await evaluate("document.querySelector('.atlas-figure')?.dataset.view==='tokens'"))break;await wait(50);}
+  assert.equal(await text("#survey-tpw"),"10.12");
+  await evaluate("location.hash='atlas-decoding'");
+  await stable();
+  assert.equal(await evaluate("document.querySelector('#speed-panel').hidden"),false);
+  log("PASS public atlas deep links initialize and switch evidence layers");
   const metadata={browser:await call("Browser.getVersion"),checks:checks.length,errors,failedRequests,httpFailures};
   fs.writeFileSync(path.join(out,"browser.json"),JSON.stringify(metadata,null,2));
   fs.writeFileSync(path.join(out,"browser.log"),checks.join("\n")+"\n");

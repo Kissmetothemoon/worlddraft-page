@@ -8,9 +8,13 @@
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
   <link rel="stylesheet" href="assets/tokens.css">
   <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/background.css">
   <script src="assets/data.js" defer></script>
   <script src="assets/metrics.js" defer></script>
   <script src="assets/app.js" defer></script>
+  <script src="assets/atlas-geography.js" defer></script>
+  <script src="assets/background.js" defer></script>
+  <script src="assets/atlas-explorer.js" defer></script>
   <script src="assets/block-data.js" defer></script>
   <script src="assets/interactive.js" defer></script>
 </head>
@@ -39,6 +43,117 @@
     <p class="name-note"><strong>Why WorldDraft?</strong> An extra <em>l</em> turns <em>word</em> into <em>world</em>. The two cuts in the teal <em>l</em> evoke a word split into tokens and a world where the same drafting method can speed up one language and slow down another.</p>
   </section>
 
+  <section class="wrap context-atlas" id="background" aria-labelledby="atlas-heading">
+    <div class="atlas-intro">
+      <h2 id="atlas-heading">How far does the speedup reach?</h2>
+      <p>Glottolog lists <strong>7,685 spoken languages</strong>, past and present. Our decoding benchmark covers 16. That leaves <strong>7,669 without a speed measurement in this study</strong>. A wider tokenizer survey lets us examine word fragmentation in more languages.</p>
+    </div>
+    <div class="atlas-modes" role="group" aria-label="Choose map evidence">
+      <button type="button" id="atlas-languages" data-mode="world" aria-pressed="true">World languages <b>7,685</b></button>
+      <button type="button" id="atlas-tokenization" data-mode="tokens" aria-pressed="false">Tokenization <b>204</b></button>
+      <button type="button" id="atlas-decoding" data-mode="speed" aria-pressed="false">Decoding <b>18</b></button>
+    </div>
+    <div class="atlas-figure" data-view="world">
+      <figure class="atlas-map">
+        <div class="atlas-legend" id="speed-legend" aria-label="Map legend" hidden>
+          <span><i class="atlas-dot"></i>Catalogue location</span>
+          <span><i class="atlas-fast"></i>Tested · faster</span>
+          <span><i class="atlas-slow"></i>Tested · slower</span>
+        </div>
+        <div class="atlas-legend" id="token-legend" hidden><span><i class="atlas-dot"></i>Catalogue location</span><span><i class="survey-dot"></i>Tokenizer sample</span></div>
+        <svg viewBox="0 0 716 318" id="atlas-svg" role="group" aria-label="World language atlas. Search for a language or select a point to explore.">
+          <g aria-hidden="true">
+            <path id="atlas-grid"></path><path id="atlas-land"></path><path id="atlas-locations"></path>
+          </g>
+          <g id="catalogue-regions" aria-hidden="true"></g>
+          <g id="survey-markers"></g>
+          <g id="atlas-markers" style="display:none"></g>
+          <g id="atlas-label" aria-hidden="true" style="display:none"></g>
+          <g id="explorer-highlight" aria-hidden="true" pointer-events="none"></g>
+        </svg>
+        <div id="atlas-regions" role="group" aria-label="Highlight a Glottolog region"></div>
+        <figcaption id="atlas-caption">Select a region or a dot to explore. A dot marks one language’s reference location.</figcaption>
+      </figure>
+      <div class="atlas-readout" id="catalogue-panel">
+        <label for="language-query">Find a language</label>
+        <input type="search" id="language-query" placeholder="Name, ISO code or Glottocode" autocomplete="off" aria-controls="language-hits">
+        <div id="language-hits" aria-label="Matching languages"></div>
+        <div class="catalogue-record" aria-live="polite" aria-atomic="true">
+          <h3 id="catalogue-name"></h3><p id="catalogue-place"></p>
+          <p id="catalogue-evidence"></p>
+          <a id="catalogue-source" href="https://glottolog.org/">Glottolog entry ↗</a>
+        </div>
+      </div>
+      <div class="atlas-readout" id="survey-panel" hidden>
+        <label for="survey-condition">FLORES-200 language / script</label>
+        <select id="survey-condition" aria-controls="survey-detail"></select>
+        <div id="survey-detail" aria-live="polite">
+          <p class="survey-metric"><strong id="survey-tpw"></strong> tokens per word</p>
+          <p id="survey-comparison"></p>
+        </div>
+        <figure class="survey-strip"><figcaption>Tokens per word across 204 samples · log scale</figcaption>
+          <svg id="survey-distribution" viewBox="0 0 280 86" role="img" aria-label="Distribution of tokens per word across FLORES-200 samples"></svg>
+        </figure>
+      </div>
+      <div class="atlas-readout" id="speed-panel" hidden>
+        <label for="atlas-condition">Measured language / script</label>
+        <select id="atlas-condition" aria-controls="atlas-detail"></select>
+        <div id="atlas-detail" aria-live="polite" aria-atomic="true">
+          <p id="atlas-fertility"></p>
+          <table class="atlas-speeds">
+            <caption>Throughput relative to direct decoding</caption>
+            <thead><tr><th scope="col">Drafter</th><th scope="col">Speedup</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Public DFlash</th><td id="atlas-public">0.72×</td></tr>
+              <tr><th scope="row">Multilingual DFlash</th><td id="atlas-trained">1.26×</td></tr>
+              <tr><th scope="row">AR drafter</th><td id="atlas-ar">1.64×</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="atlas-setting">Qwen3-8B · vLLM · NVIDIA L20<br>32 concurrent requests · 1.00× = direct decoding</p>
+      </div>
+    </div>
+    <p class="atlas-finding" id="atlas-finding" aria-live="polite">Each region contains hundreds of languages. The colors show geography. Throughput beyond the 16 benchmark languages remains an open question.</p>
+    <details class="atlas-source">
+      <summary>Map sources and benchmark scope</summary>
+      <p>The map locates 7,683 of the 7,685 entries classified as spoken L1 languages in <a href="https://github.com/glottolog/glottolog-cldf/releases/tag/v5.4">Glottolog 5.4</a>, including historically attested languages. Two entries lack coordinates. Many languages are spoken across several countries. Locations are adapted from Hammarström, Forkel, Haspelmath &amp; Bank (2026), licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Land outlines come from <a href="https://www.naturalearthdata.com/">Natural Earth</a> (public domain).</p>
+      <p>The world view includes all catalogue entries in its search. Regional counts follow Glottolog’s macroareas. A language can belong to more than one region. The decoding benchmark represents Mandarin, Standard Arabic and Standard Serbian at their catalogue locations, counting the corresponding spoken language once.</p>
+      <p>The tokenizer view covers 204 FLORES-200 language–script samples (196 distinct ISO codes). Markers use exact ISO matches with Glottolog coordinates. All 204 samples are available in the selector. These counts describe the Qwen3-8B tokenizer on FLORES-200 devtest. Word boundaries vary across writing systems. <a href="data/survey_summary.json">Tokenizer survey data</a></p>
+      <p>In the decoding view, marker color compares public DFlash with direct target decoding at the same load. The two Hindi scripts share a location, as do the two Serbian scripts. The selector reports each condition separately. <a href="data/speed.json">Benchmark data</a></p>
+    </details>
+  </section>
+
+  <section class="wrap fragment-story" id="word-fragmentation" aria-labelledby="frag-heading">
+    <h2 id="frag-heading">Why can splitting a word slow decoding?</h2>
+    <p class="frag-intro">The same name takes two Qwen tokens in English and seven in Telugu. Those extra pieces matter when several must be drafted in the same block.</p>
+    <div class="frag-layout">
+      <figure class="word-sample">
+        <figcaption>“Janet” in the same MGSM question</figcaption>
+        <div class="word-row"><span class="word-language">English</span><span class="word-native" lang="en">Janet</span>
+          <div class="word-pieces" id="pieces-en" aria-label="English token pieces"><span>Jan</span><span>et</span></div><span class="piece-total">2 tokens</span></div>
+        <div class="word-row"><span class="word-language">Telugu</span><span class="word-native" lang="te">జనెత్</span>
+          <div class="word-pieces" id="pieces-te" aria-label="Telugu token pieces"><span>జ</span><span>న</span><span class="byte-piece">E0 B1</span><span class="byte-piece">86</span><span>త</span><span class="byte-piece">E0 B1</span><span class="byte-piece">8D</span></div><span class="piece-total">7 tokens</span></div>
+        <p class="frag-note">Each box is one token. Byte fragments use hexadecimal labels. Across the study prompts, Qwen averages 1.13 tokens per word in English and 9.18 in Telugu.</p>
+      </figure>
+      <figure class="word-context">
+        <figcaption>What can the next piece see?</figcaption>
+        <div class="draft-diagrams">
+          <div><h3>Autoregressive</h3>
+            <svg viewBox="0 0 198 88" role="img" aria-label="The accepted prefix predicts piece one, then piece one is visible to piece two, and piece two is visible to piece three.">
+              <defs><marker id="frag-tip-ar" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6Z"/></marker></defs><path class="context-arrow" d="M53 51H69" marker-end="url(#frag-tip-ar)"/><path class="context-arrow" d="M100 51H117" marker-end="url(#frag-tip-ar)"/><path class="context-arrow" d="M148 51H165" marker-end="url(#frag-tip-ar)"/><g class="prefix-box"><rect x="2" y="38" width="51" height="26" rx="4"/><text x="27.5" y="55">Prefix</text></g><g class="piece-box"><rect x="72" y="38" width="28" height="26" rx="4"/><text x="86.0" y="55">1</text></g><g class="piece-box"><rect x="120" y="38" width="28" height="26" rx="4"/><text x="134.0" y="55">2</text></g><g class="piece-box"><rect x="168" y="38" width="28" height="26" rx="4"/><text x="182.0" y="55">3</text></g>
+            </svg><p>Each new piece sees the pieces already drafted.</p>
+          </div>
+          <div><h3>DFlash</h3>
+            <svg viewBox="0 0 198 88" role="img" aria-label="The same accepted prefix feeds all three pieces. No drafted piece is visible to its neighbors in the block.">
+              <defs><marker id="frag-tip-block" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6Z"/></marker></defs><path class="context-arrow" d="M99 27V39H33.5V51" marker-end="url(#frag-tip-block)"/><path class="context-arrow" d="M99 27V51" marker-end="url(#frag-tip-block)"/><path class="context-arrow" d="M99 39H165.5V51" marker-end="url(#frag-tip-block)"/><g class="prefix-box"><rect x="73" y="1" width="52" height="26" rx="4"/><text x="99.0" y="18">Prefix</text></g><g class="piece-box"><rect x="18" y="54" width="31" height="26" rx="4"/><text x="33.5" y="71">1</text></g><g class="piece-box"><rect x="84" y="54" width="31" height="26" rx="4"/><text x="99.5" y="71">2</text></g><g class="piece-box"><rect x="150" y="54" width="31" height="26" rx="4"/><text x="165.5" y="71">3</text></g>
+            </svg><p>All three pieces are proposed in parallel from the same accepted prefix.</p>
+          </div>
+        </div>
+        <p class="frag-note">At the first mismatch, the target discards that piece and the rest of the draft. Shorter accepted runs can erase the speedup.</p>
+      </figure>
+    </div>
+    <p class="frag-conclusion">On both Qwen and Llama, revealing a correct first piece reduced errors later in the word more than revealing the preceding token, across all 18 conditions. WorldDraft uses counts from monolingual text to favor likely continuations before verification. <a href="#block-demo">Inspect a recorded draft block&nbsp;↗</a></p>
+  </section>
   <section class="wrap interactive-main" id="demo" aria-labelledby="race-title">
     <div class="lab-top">
       <div><h2 id="race-title">Watch the gap open.</h2><p class="lab-disclosure">Equal-work illustration driven by measured throughput. Not recorded token timing or request latency.</p></div>
@@ -178,7 +293,7 @@
         <summary><span>Inspect the second target family</span><span class="summary-note">Qwen and Llama speculative-loop results</span></summary>
         <div class="detail-content"><p>Batch-1 loop results, normalized to public DFlash = 1.00. These are not vLLM engine measurements. Margins are the exported 95% paired-bootstrap intervals.</p><div class="table-scroll" tabindex="0" role="region" aria-label="Two-target loop results"><table id="loop-table"></table></div><a class="text-link" href="data/table_main.json" download>Download loop data ↗</a></div>
       </details>
-      <p class="survey-note"><strong>Fragmentation is widespread, not universal evidence of a speedup.</strong> The separate FLORES tokenizer survey covers 204 languages; 189 use at least 1.5× the English tokens per word. Performance was not tested across all 204. <a href="data/survey_summary.json" download>Survey data ↗</a></p>
+      <p class="survey-note">In the separate FLORES tokenizer survey, 189 of 204 language–script samples use at least 1.5× the English tokens per word. <a href="#background">Explore the language atlas ↗</a></p>
     </div>
   </section>
 
