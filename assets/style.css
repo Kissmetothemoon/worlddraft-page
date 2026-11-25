@@ -449,3 +449,9 @@ pre { white-space: pre-wrap; padding: 20px; margin: 16px 0 0; background: var(--
 .research-links { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
 .research-links a { display: inline-flex; align-items: center; padding: 6px 15px; color: var(--foreground); border: 1px solid var(--border); border-radius: 24px; font-size: 14px; line-height: 1.4; font-weight: 600; text-decoration: none; }
 .research-links a:hover { border-color: currentColor; text-decoration: underline; }
+
+.research-intro .name-note { max-width: 70ch; margin: 19px auto 0; color: var(--secondary); font-size: 14px; line-height: 1.5; text-wrap: pretty; }
+.name-note strong { color: var(--foreground); }
+.research-links { flex-wrap: wrap; }
+.research-links .paper-resource { color: #fff; background: #12675e; border-color: #12675e; }
+[data-theme="dark"] .research-links .paper-resource { background: #86d4c4; color: #112f2b; border-color: #86d4c4; }

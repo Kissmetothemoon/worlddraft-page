@@ -3,7 +3,7 @@
   <img src="assets/brand/worlddraft.svg" alt="WorldDraft" width="340">
 </picture>
 
-[Project page](https://kissmetothemoon.github.io/worlddraft-page/) · [Source code](https://github.com/Kissmetothemoon/WorldDraft)
+[Paper details](https://kissmetothemoon.github.io/worlddraft-page/#paper) · [Project page](https://kissmetothemoon.github.io/worlddraft-page/) · [Interactive demo](https://kissmetothemoon.github.io/worlddraft-page/#block-demo) · [Source code](https://github.com/Kissmetothemoon/WorldDraft)
 
 Compare measured throughput across 18 language and script conditions and inspect eight recorded draft blocks. Open `index.html` directly or serve this directory with a static HTTP server.
 
